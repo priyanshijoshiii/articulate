@@ -104,13 +104,14 @@ export default function Recorder({ phase, onRecordingComplete }: RecorderProps) 
   }
 
   // --- Volume tracking for waveform bars ---
-  function trackVolume() {
-    const analyser = analyserRef.current
-    if (!analyser) return
+    function trackVolume() {
+        const analyser = analyserRef.current
+        if (!analyser) return
 
-    const data = new Uint8Array(analyser.frequencyBinCount)
+        const data = new Uint8Array(analyser.frequencyBinCount)
 
     function tick() {
+      if (!analyser) return
       analyser.getByteFrequencyData(data)
       const avg = data.reduce((a, b) => a + b, 0) / data.length
       setVolume(Math.min(avg / 60, 1)) // normalize 0–1
