@@ -1,65 +1,249 @@
-import Image from "next/image";
+'use client'
+
+import { useState, useCallback } from 'react'
+
+import TopicCard from '@/components/TopicCard'
+import Timer from '@/components/Timer'
+import Recorder from '@/components/Recorder'
+import FeedbackPanel, { FeedbackData } from '@/components/FeedbackPanel'
+// add useCallback to the import
+
+
+
+type Phase = 'idle' | 'thinking' | 'speaking' | 'done'
 
 export default function Home() {
+  // Shared state — lives here, passed down as props
+  const [phase, setPhase] = useState<Phase>('idle')
+  const [duration, setDuration] = useState(120)
+  const [thinkTime, setThinkTime] = useState(10)
+  const [sessionCount, setSessionCount] = useState(0)
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
+  const [recordingDuration, setRecordingDuration] = useState(0)
+  const [feedbackData, setFeedbackData] = useState<FeedbackData | null>(null)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+
+  //handler function
+  async function handleRecordingComplete(blob: Blob, duration: number) {
+  setAudioBlob(blob)
+  setRecordingDuration(duration)
+  setIsAnalyzing(true)
+
+  try {
+    // Step 1 — transcribe audio
+    const formData = new FormData()
+    formData.append('audio', blob, 'recording.webm')
+
+    const transcribeRes = await fetch('/api/transcribe', {
+      method: 'POST',
+      body: formData,
+    })
+
+    if (!transcribeRes.ok) throw new Error('Transcription failed')
+    const { transcript } = await transcribeRes.json()
+
+    // Step 2 — analyze transcript
+    const analyzeRes = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        transcript,
+        duration,
+        targetDuration: duration,
+      }),
+    })
+
+    if (!analyzeRes.ok) throw new Error('Analysis failed')
+    const feedbackData = await analyzeRes.json()
+
+    setFeedbackData(feedbackData)
+
+  } catch (err) {
+    console.error('Pipeline error:', err)
+    // Fall back to mock if something goes wrong
+    generateMockFeedback(duration)
+  } finally {
+    setIsAnalyzing(false)
+  }
+}
+
+function generateMockFeedback(duration: number) {
+  setIsAnalyzing(true)
+
+  // Simulate API delay
+  setTimeout(() => {
+    const wpm = Math.floor(110 + Math.random() * 60)
+    const words = Math.floor(wpm * (duration / 60))
+    const fillerCount = Math.floor(Math.random() * 8)
+    const score = Math.floor(6 + Math.random() * 3.5)
+
+    setFeedbackData({
+      overallScore: score,
+      wpm,
+      wordCount: words,
+      fillerWords: {
+        count: fillerCount,
+        instances: ['um', 'like', 'basically'].slice(0, Math.min(fillerCount, 3)),
+      },
+      grammarIssues: Math.floor(Math.random() * 5),
+      clarity: Math.floor(6 + Math.random() * 4),
+      coherence: Math.floor(5 + Math.random() * 4),
+      speakingDuration: duration,
+      targetDuration: duration,
+      suggestions: [
+        'Try pausing silently instead of using filler words — a confident pause is more powerful than "um".',
+        'Vary your sentence length. Mix short punchy statements with longer explanations to keep listeners engaged.',
+        'End with a clear conclusion. Your final sentence should signal you are done, not trail off.',
+      ],
+      transcript: 'Transcript will appear here once Groq integration is complete in Phase 5.',
+    })
+
+    setIsAnalyzing(false)
+  }, 2000)
+}
+
+  // wrap the function
+  const handlePhaseChange = useCallback((newPhase: Phase) => {
+  setPhase(newPhase)
+  if (newPhase === 'done') {
+    setSessionCount(prev => prev + 1)
+  }
+  }, [])
+
+  function handleStart() {
+    if (thinkTime > 0) {
+      setPhase('thinking')
+    } else {
+      setPhase('speaking')
+    }
+  }
+
+  function handleStop() {
+    setPhase('done')
+  }
+
+  function handleReset() {
+    setPhase('idle')
+    setFeedbackData(null)
+    setIsAnalyzing(false)
+  }
+
+
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main className="min-h-screen bg-ink p-8 flex justify-center">
+      <div className="w-full max-w-2xl space-y-8">
+
+        {/* Header */}
+        <div className="border-b border-gold/10 pb-6 flex justify-between items-end">
+          <div>
+            <h1 className="font-serif text-xl text-gold font-semibold">
+              Artic<span className="italic font-normal">ulate</span>
+            </h1>
+            <p className="font-mono text-[10px] text-white/30 tracking-widest uppercase mt-1">
+              Impromptu Speaking Trainer — v0.2
+            </p>
+          </div>
+          <p className="font-mono text-[10px] text-white/25">
+            {sessionCount} sessions today
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Status bar */}
+        <div className="grid grid-cols-4 border border-gold/10">
+          {[
+            { label: 'Phase', value: phase.toUpperCase() },
+            { label: 'Duration', value: `${duration / 60}:00` },
+            { label: 'Prep', value: thinkTime === 0 ? 'None' : `${thinkTime}s` },
+            { label: 'Sessions', value: sessionCount.toString() },
+          ].map((cell, i) => (
+            <div
+              key={i}
+              className={`px-4 py-2.5 ${i < 3 ? 'border-r border-gold/10' : ''}`}
+            >
+              <p className="font-mono text-[9px] tracking-widest uppercase text-white/25 mb-0.5">
+                {cell.label}
+              </p>
+              <p className={`font-mono text-sm font-medium ${
+                cell.label === 'Phase' && phase === 'speaking'
+                  ? 'text-red-400'
+                  : 'text-white/70'
+              }`}>
+                {cell.value}
+              </p>
+            </div>
+          ))}
         </div>
-      </main>
-    </div>
-  );
+
+        {/* Topic section */}
+        <section>
+          <SectionLabel>Topic Prompt</SectionLabel>
+          <TopicCard />
+        </section>
+
+        {/* Timer section */}
+        <section>
+          <SectionLabel>Timer</SectionLabel>
+          <Timer
+            phase={phase}
+            onPhaseChange={handlePhaseChange}
+            duration={duration}
+            thinkTime={thinkTime}
+          />
+        </section>
+
+        {/* Recorder section */}
+        <section>
+          <SectionLabel>Recording</SectionLabel>
+          <Recorder
+            phase={phase}
+            onRecordingComplete={handleRecordingComplete}
+          />
+        </section>
+
+        {/* Controls */}
+        <div className="flex gap-2">
+          <button
+            onClick={handleStart}
+            disabled={phase !== 'idle'}
+            className="flex-1 font-mono text-[11px] tracking-widest uppercase py-3 bg-gold text-ink font-medium hover:bg-gold/90 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            ▶ Start Session
+          </button>
+          <button
+            onClick={handleStop}
+            disabled={phase === 'idle' || phase === 'done'}
+            className="flex-1 font-mono text-[11px] tracking-widest uppercase py-3 border border-white/10 text-white/50 hover:border-gold/50 hover:text-gold/70 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            ■ Stop
+          </button>
+          <button
+            onClick={handleReset}
+            className="flex-1 font-mono text-[11px] tracking-widest uppercase py-3 border border-white/10 text-white/50 hover:border-gold/50 hover:text-gold/70 transition-all"
+          >
+            ↺ Reset
+          </button>
+        </div>
+
+        {/* Feedback section */}
+        {(isAnalyzing || feedbackData) && (
+          <section>
+            <SectionLabel>Analysis</SectionLabel>
+            <FeedbackPanel data={feedbackData} isLoading={isAnalyzing} />
+          </section>
+        )}
+
+      </div>
+    </main>
+  )
+}
+
+// Reusable section label
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="font-mono text-[9px] text-white/30 tracking-[0.14em] uppercase mb-3 flex items-center gap-3">
+      {children}
+      <span className="flex-1 h-px bg-gold/10" />
+    </p>
+  )
 }
