@@ -110,12 +110,14 @@ export default function Recorder({ phase, onRecordingComplete }: RecorderProps) 
 
     const data = new Uint8Array(analyser.frequencyBinCount)
 
-    function tick() {
-      analyser.getByteFrequencyData(data)
-      const avg = data.reduce((a, b) => a + b, 0) / data.length
-      setVolume(Math.min(avg / 60, 1)) // normalize 0–1
-      animFrameRef.current = requestAnimationFrame(tick)
-    }
+const tick = () => {
+  const currentAnalyser = analyserRef.current
+  if (!currentAnalyser) return
+  currentAnalyser.getByteFrequencyData(data)
+  const avg = data.reduce((a, b) => a + b, 0) / data.length
+  setVolume(Math.min(avg / 60, 1))
+  animFrameRef.current = requestAnimationFrame(tick)
+}
 
     tick()
   }
