@@ -4,7 +4,7 @@
 
 ![Next.js](https://img.shields.io/badge/Next.js_14-black?style=flat&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/sTailwind_CSS-06B6D4?style=flat&logo=tailwindcss&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat&logo=tailwindcss&logoColor=white)
 ![Groq](https://img.shields.io/badge/Groq_AI-F55036?style=flat)
 
 ---
