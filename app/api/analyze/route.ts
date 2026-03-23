@@ -7,7 +7,7 @@ const groq = new Groq({
 
 export async function POST(request: NextRequest) {
   try {
-    const { transcript, duration, targetDuration } = await request.json()
+    const { transcript, duration, targetDuration, topic } = await request.json()
 
     if (!transcript || transcript.trim().length === 0) {
       return NextResponse.json(
@@ -42,31 +42,47 @@ export async function POST(request: NextRequest) {
       model: 'llama-3.3-70b-versatile',
       temperature: 0.3,
       messages: [
-        {
-          role: 'system',
-          content: `You are a professional speech coach analyzing an impromptu speaking session.
-You will receive a transcript and return ONLY a valid JSON object — no explanation, no markdown, no backticks.
-
-Return exactly this shape:
-{
-  "overallScore": <number 1-10>,
-  "clarity": <number 1-10>,
-  "coherence": <number 1-10>,
-  "grammarIssues": <number, count of grammar mistakes>,
-  "suggestions": [<string>, <string>, <string>],
-  "grammarCorrections": [<string>]
-}`,
-        },
-        {
-          role: 'user',
-          content: `Analyze this impromptu speech transcript:
-
-"${transcript}"
-
-Speaking duration: ${Math.round(duration)} seconds
-Target duration: ${targetDuration} seconds`,
-        },
-      ],
+      {
+        role: 'system',
+        content: `You are an expert speech coach and subject matter expert. You analyze impromptu speaking sessions and give brutally honest, highly personalized feedback.
+    
+    You will receive a transcript, the topic the speaker was given, and session stats. Return ONLY a valid JSON object — no explanation, no markdown, no backticks.
+    
+    Return exactly this shape:
+    {
+      "overallScore": <number 1-10>,
+      "clarity": <number 1-10>,
+      "coherence": <number 1-10>,
+      "grammarIssues": <number>,
+      "topicClarity": <string — 2-3 sentences: did they actually address the topic? what was their core argument?>,
+      "knowledgeGaps": [<string>, <string>, <string>],
+      "articulationReport": <string — 3-4 sentences: specific observations about HOW they spoke, not what they said. mention actual phrases they used, sentence patterns, vocabulary choices>,
+      "suggestions": [<string>, <string>, <string>],
+      "grammarCorrections": [<string>]
+    }
+    
+    Rules:
+    - topicClarity: be specific about what argument or point they made. quote their actual words if relevant.
+    - knowledgeGaps: list 3 specific facts, angles, or perspectives they missed that would have strengthened their answer on THIS topic
+    - articulationReport: reference actual phrases from their transcript. mention if they repeated words, used passive voice, had strong openings, weak conclusions etc.
+    - suggestions: make each one a concrete action tied to something specific they said or missed — not generic advice
+    - overallScore: be honest. a 7 means genuinely good. most first attempts are 4-6.`,
+      },
+      {
+        role: 'user',
+        content: `Topic given to speaker: "${topic || 'General impromptu speech'}"
+    
+    Transcript:
+    "${transcript}"
+    
+    Session stats:
+    - Speaking duration: ${Math.round(duration)} seconds
+    - Target duration: ${targetDuration} seconds
+    - Words per minute: ${wpm}
+    - Filler words detected: ${fillerCount} (${foundFillers.join(', ') || 'none'})
+    - Total words spoken: ${words}`,
+      },
+    ],
     })
 
     // Parse response safely
@@ -105,6 +121,9 @@ Target duration: ${targetDuration} seconds`,
       targetDuration,
       suggestions: (aiData.suggestions as string[]) ?? [],
       transcript,
+      topicClarity: (aiData.topicClarity as string) || null,
+      knowledgeGaps: (aiData.knowledgeGaps as string[])?.length ? aiData.knowledgeGaps : null,
+      articulationReport: (aiData.articulationReport as string) || null,
     }
 
     return NextResponse.json(feedbackData)

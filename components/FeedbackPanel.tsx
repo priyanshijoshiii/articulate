@@ -16,6 +16,10 @@ export interface FeedbackData {
   targetDuration: number      // seconds
   suggestions: string[]
   transcript: string
+  topicClarity?: string
+  knowledgeGaps?: string[]
+  articulationReport?: string
+
 }
 
 interface FeedbackPanelProps {
@@ -211,6 +215,45 @@ export default function FeedbackPanel({ data, isLoading }: FeedbackPanelProps) {
         <MetricBar label="Coherence" value={data.coherence} />
         <MetricBar label="Overall" value={data.overallScore} />
       </div>
+
+      {/* Topic clarity */}
+      {data.topicClarity && (
+        <div className="border border-white/8 bg-white/[0.02] p-5 space-y-2">
+          <p className="font-mono text-[9px] tracking-widest uppercase text-white/25">
+            Did you address the topic?
+          </p>
+          <p className="text-sm text-white/60 leading-relaxed">
+            {data.topicClarity}
+          </p>
+        </div>
+      )}
+
+      {/* Knowledge gaps */}
+      {data.knowledgeGaps && data.knowledgeGaps.length > 0 && (
+        <div className="border border-white/8 bg-white/[0.02] p-5 space-y-3">
+          <p className="font-mono text-[9px] tracking-widest uppercase text-white/25">
+            What to add next time
+          </p>
+          {data.knowledgeGaps.map((gap, i) => (
+            <div key={i} className="flex gap-3 text-sm text-white/50 leading-relaxed">
+              <span className="text-gold/60 font-mono mt-0.5 flex-shrink-0">+</span>
+              <span>{gap}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Articulation report */}
+      {data.articulationReport && (
+        <div className="border border-gold/15 bg-gold/5 p-5 space-y-2">
+          <p className="font-mono text-[9px] tracking-widest uppercase text-white/25">
+            Articulation report
+          </p>
+          <p className="text-sm text-white/60 leading-relaxed">
+            {data.articulationReport}
+          </p>
+        </div>
+      )}
 
       {/* Suggestions */}
       {data.suggestions.length > 0 && (

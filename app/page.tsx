@@ -22,6 +22,7 @@ export default function Home() {
   const [recordingDuration, setRecordingDuration] = useState(0)
   const [feedbackData, setFeedbackData] = useState<FeedbackData | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [currentTopic, setCurrentTopic] = useState<string>('')
 
   //handler function
   async function handleRecordingComplete(blob: Blob, duration: number) {
@@ -50,13 +51,17 @@ export default function Home() {
         transcript,
         duration,
         targetDuration: duration,
+        topic: currentTopic,
       }),
     })
 
     if (!analyzeRes.ok) throw new Error('Analysis failed')
     const feedbackData = await analyzeRes.json()
+    console.log('Feedback data received:', feedbackData)
+    setFeedbackData(feedbackData)
 
     setFeedbackData(feedbackData)
+    
 
   } catch (err) {
     console.error('Pipeline error:', err)
@@ -178,7 +183,7 @@ function generateMockFeedback(duration: number) {
         {/* Topic section */}
         <section>
           <SectionLabel>Topic Prompt</SectionLabel>
-          <TopicCard />
+          <TopicCard onTopicChange={(t) => setCurrentTopic(t.text)} />
         </section>
 
         {/* Timer section */}
