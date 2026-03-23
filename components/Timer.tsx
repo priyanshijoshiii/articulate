@@ -10,6 +10,8 @@ interface TimerProps {
   onPhaseChange: (phase: Phase) => void
   duration: number        // speaking duration in seconds
   thinkTime: number       // prep time in seconds
+  onDurationChange: (value: number) => void
+  onThinkTimeChange: (value: number) => void
 }
 
 // --- Helpers ---
@@ -31,6 +33,8 @@ export default function Timer({
   onPhaseChange,
   duration,
   thinkTime,
+  onDurationChange,
+  onThinkTimeChange,
 }: TimerProps) {
   const [remaining, setRemaining] = useState(duration)
   const [thinkRemaining, setThinkRemaining] = useState(thinkTime)
@@ -159,7 +163,8 @@ export default function Timer({
               ]}
               selected={duration}
               disabled={phase !== 'idle'}
-              onSelect={v => {
+              onSelect={(v) => {
+                onDurationChange(v)
                 setRemaining(v)
               }}
             />
@@ -179,7 +184,10 @@ export default function Timer({
               ]}
               selected={thinkTime}
               disabled={phase !== 'idle'}
-              onSelect={() => {}}
+              onSelect={(v) => {
+                onThinkTimeChange(v)
+                setThinkRemaining(v)
+              }}
             />
           </div>
 

@@ -189,6 +189,8 @@ function generateMockFeedback(duration: number) {
             onPhaseChange={handlePhaseChange}
             duration={duration}
             thinkTime={thinkTime}
+            onDurationChange={setDuration}
+            onThinkTimeChange={setThinkTime}
           />
         </section>
 
