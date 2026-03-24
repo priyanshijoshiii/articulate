@@ -59,8 +59,8 @@ export default function Home() {
     const feedbackData = await analyzeRes.json()
     console.log('Feedback data received:', feedbackData)
     setFeedbackData(feedbackData)
-
-    setFeedbackData(feedbackData)
+    await saveSession(feedbackData, currentTopic)
+    
     
 
   } catch (err) {
@@ -132,6 +132,27 @@ function generateMockFeedback(duration: number) {
     setFeedbackData(null)
     setIsAnalyzing(false)
   }
+
+
+  // to save sessions after analysis
+  async function saveSession(
+  feedbackData: FeedbackData,
+  topic: string,
+) {
+  try {
+    await fetch('/api/sessions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...feedbackData,
+        topic,
+      }),
+    })
+  } catch (err) {
+    console.error('Failed to save session:', err)
+    // Non-critical — don't show error to user
+  }
+}
 
 
 
