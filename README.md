@@ -201,8 +201,10 @@ The UI follows a "Bloomberg terminal meets Moleskine notebook" aesthetic — bui
 
 ## License
 
-MIT — free to use, modify, and deploy.
+© 2025 Priyanshi Joshi. All rights reserved.
+
+This project is not open source. The code, design, and concept are the intellectual property of Priyanshi Joshi. You may not copy, modify, distribute, or use this project or any part of it without explicit written permission from the author.
 
 ---
 
-Built by [Priyanshi Joshi](https://github.com/priyanshijoshiii)loyment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Built by [Priyanshi Joshi](https://github.com/priyanshijoshiii)
