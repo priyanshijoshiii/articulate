@@ -71,48 +71,12 @@ export default function Home() {
     
 
   } catch (err) {
-    console.error('Pipeline error:', err)
-    // Fall back to mock if something goes wrong
-    generateMockFeedback(duration)
-  } finally {
-    setIsAnalyzing(false)
+      console.error('Pipeline error:', err)
+      alert('Something went wrong. Please try again.')
+    } finally {
+      setIsAnalyzing(false)
+    }
   }
-}
-
-function generateMockFeedback(duration: number) {
-  setIsAnalyzing(true)
-
-  // Simulate API delay
-  setTimeout(() => {
-    const wpm = Math.floor(110 + Math.random() * 60)
-    const words = Math.floor(wpm * (duration / 60))
-    const fillerCount = Math.floor(Math.random() * 8)
-    const score = Math.floor(6 + Math.random() * 3.5)
-
-    setFeedbackData({
-      overallScore: score,
-      wpm,
-      wordCount: words,
-      fillerWords: {
-        count: fillerCount,
-        instances: ['um', 'like', 'basically'].slice(0, Math.min(fillerCount, 3)),
-      },
-      grammarIssues: Math.floor(Math.random() * 5),
-      clarity: Math.floor(6 + Math.random() * 4),
-      coherence: Math.floor(5 + Math.random() * 4),
-      speakingDuration: duration,
-      targetDuration: duration,
-      suggestions: [
-        'Try pausing silently instead of using filler words — a confident pause is more powerful than "um".',
-        'Vary your sentence length. Mix short punchy statements with longer explanations to keep listeners engaged.',
-        'End with a clear conclusion. Your final sentence should signal you are done, not trail off.',
-      ],
-      transcript: 'Transcript will appear here once Groq integration is complete in Phase 5.',
-    })
-
-    setIsAnalyzing(false)
-  }, 2000)
-}
 
   // wrap the function
   const handlePhaseChange = useCallback((newPhase: Phase) => {
