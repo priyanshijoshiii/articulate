@@ -40,6 +40,13 @@ export default function Home() {
       body: formData,
     })
 
+    if (transcribeRes.status === 422) {
+      const { message } = await transcribeRes.json()
+      alert(message)
+      setIsAnalyzing(false)
+      return
+    }
+
     if (!transcribeRes.ok) throw new Error('Transcription failed')
     const { transcript } = await transcribeRes.json()
 
@@ -135,10 +142,7 @@ function generateMockFeedback(duration: number) {
 
 
   // to save sessions after analysis
-  async function saveSession(
-  feedbackData: FeedbackData,
-  topic: string,
-) {
+async function saveSession(feedbackData: FeedbackData, topic: string) {
   try {
     await fetch('/api/sessions', {
       method: 'POST',
@@ -150,7 +154,6 @@ function generateMockFeedback(duration: number) {
     })
   } catch (err) {
     console.error('Failed to save session:', err)
-    // Non-critical — don't show error to user
   }
 }
 

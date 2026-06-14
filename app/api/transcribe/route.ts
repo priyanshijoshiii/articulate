@@ -26,6 +26,17 @@ export async function POST(request: NextRequest) {
       language: 'en',
     })
 
+    // Hallucination guard
+    const text = transcription.text?.trim() ?? ''
+    const wordCount = text.split(/\s+/).filter(Boolean).length
+
+    if (wordCount < 10) {
+      return NextResponse.json(
+        { error: 'Too short', message: 'Not enough speech detected. Please speak for at least 15 seconds.' },
+        { status: 422 }
+      )
+    }
+
     // 3. Return the transcript
     return NextResponse.json({
       transcript: transcription.text,
