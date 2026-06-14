@@ -69,7 +69,7 @@ export default function Home() {
     await saveSession(feedbackData, currentTopic)
     
     
-
+// 
   } catch (err) {
       console.error('Pipeline error:', err)
       alert('Something went wrong. Please try again.')
