@@ -121,13 +121,6 @@ articulate/
 
 ---
 
-## Environment variables
-
-| Variable | Required | Description |
-|---|---|---|
-| `GROQ_API_KEY` | Yes | Your Groq API key from console.groq.com |
-
----
 
 ## Roadmap
 
@@ -198,10 +191,13 @@ The UI follows a "Bloomberg terminal meets Moleskine notebook" aesthetic — bui
 | `font-sans` | IBM Plex Sans | Body text |
 
 ---
-
 ## License
 
-MIT — free to use, modify, and deploy.
+MIT License
+
+Copyright (c) 2025 Priyanshi Joshi
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software to use, copy, modify, merge, publish, distribute, and sublicense it, subject to the condition that the above copyright notice appears in all copies.
 
 ---
 
