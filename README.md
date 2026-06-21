@@ -129,7 +129,7 @@ articulate/
 - [x] Voice recording with live waveform
 - [x] Groq Whisper speech-to-text
 - [x] Llama 3.3 AI feedback — grammar, clarity, suggestions
-- [ ] MongoDB session history
+- [x] MongoDB session history
 - [ ] Progress tracking — WPM trends, score over time
 - [ ] User accounts
 - [ ] Streak counter and gamification
@@ -178,19 +178,6 @@ Accepts JSON with `transcript`, `duration`, and `targetDuration`. Returns full f
 
 ---
 
-## Design system
-
-The UI follows a "Bloomberg terminal meets Moleskine notebook" aesthetic — built for focus, not decoration.
-
-| Token | Value | Usage |
-|---|---|---|
-| `ink` | `#080808` | Page background |
-| `gold` | `#C8922A` | Accents, active states, scores |
-| `font-mono` | IBM Plex Mono | Labels, timers, data |
-| `font-serif` | Playfair Display | Topic text, headings |
-| `font-sans` | IBM Plex Sans | Body text |
-
----
 ## License
 
 MIT License
