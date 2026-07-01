@@ -1,19 +1,29 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-
+import { useSession, signOut } from 'next-auth/react'
+import { redirect } from 'next/navigation'
 import TopicCard from '@/components/TopicCard'
 import Timer from '@/components/Timer'
 import Recorder from '@/components/Recorder'
 import FeedbackPanel, { FeedbackData } from '@/components/FeedbackPanel'
-// add useCallback to the import
-
-
 
 type Phase = 'idle' | 'thinking' | 'speaking' | 'done'
 
 export default function Home() {
-  // Shared state — lives here, passed down as props
+  const { data: session, status } = useSession()
+
+  if (status === 'loading') return (
+    <main className="min-h-screen bg-ink flex items-center justify-center">
+      <div className="w-4 h-4 border-2 border-gold/40 border-t-gold rounded-full animate-spin" />
+    </main>
+  )
+
+  if (!session) {
+    redirect('/login')
+    return null
+  }
+
   const [phase, setPhase] = useState<Phase>('idle')
   const [duration, setDuration] = useState(120)
   const [thinkTime, setThinkTime] = useState(10)
@@ -24,53 +34,47 @@ export default function Home() {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [currentTopic, setCurrentTopic] = useState<string>('')
 
-  //handler function
   async function handleRecordingComplete(blob: Blob, duration: number) {
-  setAudioBlob(blob)
-  setRecordingDuration(duration)
-  setIsAnalyzing(true)
+    setAudioBlob(blob)
+    setRecordingDuration(duration)
+    setIsAnalyzing(true)
 
-  try {
-    // Step 1 — transcribe audio
-    const formData = new FormData()
-    formData.append('audio', blob, 'recording.webm')
+    try {
+      const formData = new FormData()
+      formData.append('audio', blob, 'recording.webm')
 
-    const transcribeRes = await fetch('/api/transcribe', {
-      method: 'POST',
-      body: formData,
-    })
+      const transcribeRes = await fetch('/api/transcribe', {
+        method: 'POST',
+        body: formData,
+      })
 
-    if (transcribeRes.status === 422) {
-      const { message } = await transcribeRes.json()
-      alert(message)
-      setIsAnalyzing(false)
-      return
-    }
+      if (transcribeRes.status === 422) {
+        const { message } = await transcribeRes.json()
+        alert(message)
+        setIsAnalyzing(false)
+        return
+      }
 
-    if (!transcribeRes.ok) throw new Error('Transcription failed')
-    const { transcript } = await transcribeRes.json()
+      if (!transcribeRes.ok) throw new Error('Transcription failed')
+      const { transcript } = await transcribeRes.json()
 
-    // Step 2 — analyze transcript
-    const analyzeRes = await fetch('/api/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        transcript,
-        duration,
-        targetDuration: duration,
-        topic: currentTopic,
-      }),
-    })
+      const analyzeRes = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          transcript,
+          duration,
+          targetDuration: duration,
+          topic: currentTopic,
+        }),
+      })
 
-    if (!analyzeRes.ok) throw new Error('Analysis failed')
-    const feedbackData = await analyzeRes.json()
-    console.log('Feedback data received:', feedbackData)
-    setFeedbackData(feedbackData)
-    await saveSession(feedbackData, currentTopic)
-    
-    
-// 
-  } catch (err) {
+      if (!analyzeRes.ok) throw new Error('Analysis failed')
+      const feedbackData = await analyzeRes.json()
+      setFeedbackData(feedbackData)
+      await saveSession(feedbackData, currentTopic)
+
+    } catch (err) {
       console.error('Pipeline error:', err)
       alert('Something went wrong. Please try again.')
     } finally {
@@ -78,12 +82,11 @@ export default function Home() {
     }
   }
 
-  // wrap the function
   const handlePhaseChange = useCallback((newPhase: Phase) => {
-  setPhase(newPhase)
-  if (newPhase === 'done') {
-    setSessionCount(prev => prev + 1)
-  }
+    setPhase(newPhase)
+    if (newPhase === 'done') {
+      setSessionCount(prev => prev + 1)
+    }
   }, [])
 
   function handleStart() {
@@ -104,24 +107,17 @@ export default function Home() {
     setIsAnalyzing(false)
   }
 
-
-  // to save sessions after analysis
-async function saveSession(feedbackData: FeedbackData, topic: string) {
-  try {
-    await fetch('/api/sessions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ...feedbackData,
-        topic,
-      }),
-    })
-  } catch (err) {
-    console.error('Failed to save session:', err)
+  async function saveSession(feedbackData: FeedbackData, topic: string) {
+    try {
+      await fetch('/api/sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...feedbackData, topic }),
+      })
+    } catch (err) {
+      console.error('Failed to save session:', err)
+    }
   }
-}
-
-
 
   return (
     <main className="min-h-screen bg-ink p-8 flex justify-center">
@@ -137,9 +133,17 @@ async function saveSession(feedbackData: FeedbackData, topic: string) {
               Impromptu Speaking Trainer — v0.2
             </p>
           </div>
-          <p className="font-mono text-[10px] text-white/25">
-            {sessionCount} sessions today
-          </p>
+          <div className="flex items-center gap-4">
+            <p className="font-mono text-[10px] text-white/25">
+              {sessionCount} sessions today
+            </p>
+            <button
+              onClick={() => signOut({ callbackUrl: '/login' })}
+              className="font-mono text-[9px] tracking-widest uppercase text-white/20 hover:text-white/40 transition-colors"
+            >
+              Sign out
+            </button>
+          </div>
         </div>
 
         {/* Status bar */}
@@ -233,7 +237,6 @@ async function saveSession(feedbackData: FeedbackData, topic: string) {
   )
 }
 
-// Reusable section label
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <p className="font-mono text-[9px] text-white/30 tracking-[0.14em] uppercase mb-3 flex items-center gap-3">
