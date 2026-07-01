@@ -13,6 +13,25 @@ type Phase = 'idle' | 'thinking' | 'speaking' | 'done'
 export default function Home() {
   const { data: session, status } = useSession()
 
+  // ALL state hooks must come before any conditional returns
+  const [phase, setPhase] = useState<Phase>('idle')
+  const [duration, setDuration] = useState(120)
+  const [thinkTime, setThinkTime] = useState(10)
+  const [sessionCount, setSessionCount] = useState(0)
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
+  const [recordingDuration, setRecordingDuration] = useState(0)
+  const [feedbackData, setFeedbackData] = useState<FeedbackData | null>(null)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [currentTopic, setCurrentTopic] = useState<string>('')
+
+  const handlePhaseChange = useCallback((newPhase: Phase) => {
+    setPhase(newPhase)
+    if (newPhase === 'done') {
+      setSessionCount(prev => prev + 1)
+    }
+  }, [])
+
+  // Conditional returns AFTER all hooks
   if (status === 'loading') return (
     <main className="min-h-screen bg-ink flex items-center justify-center">
       <div className="w-4 h-4 border-2 border-gold/40 border-t-gold rounded-full animate-spin" />
@@ -23,16 +42,6 @@ export default function Home() {
     redirect('/login')
     return null
   }
-
-  const [phase, setPhase] = useState<Phase>('idle')
-  const [duration, setDuration] = useState(120)
-  const [thinkTime, setThinkTime] = useState(10)
-  const [sessionCount, setSessionCount] = useState(0)
-  const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
-  const [recordingDuration, setRecordingDuration] = useState(0)
-  const [feedbackData, setFeedbackData] = useState<FeedbackData | null>(null)
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [currentTopic, setCurrentTopic] = useState<string>('')
 
   async function handleRecordingComplete(blob: Blob, duration: number) {
     setAudioBlob(blob)
@@ -82,12 +91,7 @@ export default function Home() {
     }
   }
 
-  const handlePhaseChange = useCallback((newPhase: Phase) => {
-    setPhase(newPhase)
-    if (newPhase === 'done') {
-      setSessionCount(prev => prev + 1)
-    }
-  }, [])
+
 
   function handleStart() {
     if (thinkTime > 0) {
