@@ -19,8 +19,14 @@ export async function POST(request: NextRequest) {
     }
 
     // 2. Send to Groq Whisper for transcription
+    // Mobile browsers may send different mime types
+    // Rename to .wav as a fallback so Whisper accepts it
+    const audioBuffer = await audioFile.arrayBuffer()
+    const audioBlob = new Blob([audioBuffer], { type: 'audio/wav' })
+    const file = new File([audioBlob], 'recording.wav', { type: 'audio/wav' })
+
     const transcription = await groq.audio.transcriptions.create({
-      file: audioFile,
+      file: file,
       model: 'whisper-large-v3',
       response_format: 'json',
       language: 'en',
