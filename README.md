@@ -1,28 +1,35 @@
-# Articulate — AI-Powered Impromptu Speaking Trainer
+# Articulate: Impromptu Speaking Trainer
 
-> Practice thinking and speaking on the spot. Get real AI feedback on your articulation, grammar, clarity, and speaking habits.
+> Impromptu speaking trainer with real-time speech analysis built using Next.js, TypeScript, Groq Whisper, and Qwen.
 
 ![Next.js](https://img.shields.io/badge/Next.js_14-black?style=flat&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat&logo=tailwindcss&logoColor=white)
 ![Groq](https://img.shields.io/badge/Groq_AI-F55036?style=flat)
+![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=flat&logo=mongodb&logoColor=white)
 
 ---
 
 ## What it does
 
-Articulate forces you to think and speak on the spot — the single most effective way to improve communication skills. You get a random topic, a few seconds to prepare, then you speak. When you're done, AI analyzes everything: your transcript, grammar, filler words, speaking pace, clarity, and coherence. Then it tells you exactly how to improve.
+Articulate forces you to think and speak on the spot. You get a random topic, a few seconds to prepare, then you speak. When you're done, AI analyzes everything: your transcript, grammar, filler words, speaking pace, clarity, coherence, and whether you actually addressed the topic. Then it tells you exactly what to improve and what knowledge gaps to fill.
 
 ---
 
 ## Features
 
+- **Google authentication** via NextAuth.js — sessions tied to your account
 - **35 curated topics** across 5 categories — Society, Tech, Personal, Hypothetical, Debate
-- **Configurable sessions** — 1, 2, 3, or 5 minute durations with optional 10–60 second prep time
-- **Live voice recording** via the browser's MediaRecorder API with real-time waveform visualizer
-- **Speech-to-text** powered by Groq's Whisper Large v3 — a 2-minute recording transcribes in ~2 seconds
-- **AI feedback** powered by Llama 3.3 70B — grammar analysis, clarity score, coherence score, and 3 actionable suggestions
-- **Calculated metrics** — words per minute, filler word detection, time coverage, word count
+- **Configurable sessions** — 1, 2, 3, or 5 minute durations with optional 10-60 second prep time
+- **Live voice recording** via MediaRecorder API with real-time waveform visualizer
+- **Speech-to-text** powered by Groq Whisper Large v3 — transcribes 2 minutes of audio in ~2 seconds
+- **Hallucination guard** — detects and rejects silent or too-short recordings before sending to AI
+- **Personalized AI feedback** powered by Qwen on Groq:
+  - Topic clarity — did you actually address the topic?
+  - Knowledge gaps — what angles you missed
+  - Articulation report — specific observations about your speech patterns
+  - Grammar issues, filler word count, WPM, time coverage
+- **Session persistence** — every session saved to MongoDB Atlas
 - **Audio playback** — listen back to your recording after each session
 
 ---
@@ -31,11 +38,13 @@ Articulate forces you to think and speak on the spot — the single most effecti
 
 | Layer | Technology | Purpose |
 |---|---|---|
-| Frontend | Next.js 14 (App Router) | Pages, routing, server components |
+| Frontend | Next.js 14 (App Router) | Pages, routing, API routes |
 | UI | React + TypeScript | Component architecture, type safety |
 | Styling | Tailwind CSS + CSS variables | Utility classes + custom design tokens |
+| Auth | NextAuth.js + Google OAuth | User authentication |
 | Speech-to-text | Groq — Whisper Large v3 | Fast, accurate audio transcription |
-| AI analysis | Groq — Llama 3.3 70B | Grammar, clarity, feedback generation |
+| AI analysis | Groq — Qwen QWQ 32B | Personalized speech feedback |
+| Database | MongoDB Atlas + Mongoose | Session persistence |
 | Deployment | Vercel | Automatic deploys from GitHub |
 
 ---
@@ -46,6 +55,8 @@ Articulate forces you to think and speak on the spot — the single most effecti
 
 - Node.js 18 or higher
 - A free [Groq API key](https://console.groq.com)
+- A free [MongoDB Atlas](https://mongodb.com/atlas) cluster
+- Google OAuth credentials from [Google Cloud Console](https://console.cloud.google.com)
 
 ### Installation
 
@@ -61,10 +72,15 @@ npm install
 cp .env.example .env.local
 ```
 
-Open `.env.local` and add your Groq API key:
+Fill in `.env.local` with your credentials:
 
 ```
-GROQ_API_KEY=your_key_here
+GROQ_API_KEY=your_groq_key
+MONGODB_URI=your_mongodb_connection_string
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your_random_secret
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
 ```
 
 ```bash
@@ -85,16 +101,19 @@ MediaRecorder API captures audio as .webm blob
     ↓
 POST /api/transcribe — Groq Whisper Large v3
     ↓
-Transcript text
+Hallucination guard — rejects if under 10 words
     ↓
-POST /api/analyze — Llama 3.3 70B + local calculations
+POST /api/analyze — Qwen QWQ 32B + local calculations
     ↓
-FeedbackData: score, WPM, filler words, grammar, suggestions
+FeedbackData: score, WPM, filler words, topic clarity,
+knowledge gaps, articulation report, suggestions
+    ↓
+POST /api/sessions — saved to MongoDB
     ↓
 FeedbackPanel renders results
 ```
 
-The frontend never touches the API keys — all Groq calls happen inside Next.js API routes on the server.
+All Groq and database calls happen inside Next.js API routes — API keys are never exposed to the browser.
 
 ---
 
@@ -104,23 +123,33 @@ The frontend never touches the API keys — all Groq calls happen inside Next.js
 articulate/
 ├── app/
 │   ├── page.tsx              # Main page — holds all shared state
-│   ├── layout.tsx            # Root layout, font loading
+│   ├── layout.tsx            # Root layout, font loading, session provider
 │   ├── globals.css           # Global styles
+│   ├── login/
+│   │   └── page.tsx          # Google sign-in page
 │   └── api/
+│       ├── auth/
+│       │   └── [...nextauth]/
+│       │       └── route.ts  # NextAuth configuration
 │       ├── transcribe/
 │       │   └── route.ts      # Groq Whisper endpoint
-│       └── analyze/
-│           └── route.ts      # Llama analysis endpoint
+│       ├── analyze/
+│       │   └── route.ts      # Qwen analysis endpoint
+│       └── sessions/
+│           └── route.ts      # MongoDB session save/fetch
 ├── components/
 │   ├── TopicCard.tsx         # Topic generator with category filter
 │   ├── Timer.tsx             # Countdown timer with think phase
 │   ├── Recorder.tsx          # Voice recording + waveform visualizer
-│   └── FeedbackPanel.tsx     # AI feedback display
-└── tailwind.config.ts        # Design tokens — gold, ink, custom fonts
+│   ├── FeedbackPanel.tsx     # AI feedback display
+│   └── Providers.tsx         # NextAuth session provider wrapper
+└── lib/
+    ├── mongodb.ts            # Database connection with caching
+    └── models/
+        └── Session.ts        # Mongoose session schema
 ```
 
 ---
-
 
 ## Roadmap
 
@@ -128,11 +157,12 @@ articulate/
 - [x] Configurable timer with think phase
 - [x] Voice recording with live waveform
 - [x] Groq Whisper speech-to-text
-- [x] Llama 3.3 AI feedback — grammar, clarity, suggestions
-- [x] MongoDB session history
-- [ ] Progress tracking — WPM trends, score over time
-- [ ] User accounts
-- [ ] Streak counter and gamification
+- [x] Hallucination guard for silent recordings
+- [x] Personalized AI feedback — topic clarity, knowledge gaps, articulation report
+- [x] MongoDB session persistence
+- [x] Google authentication
+- [ ] Session history page — past sessions, score trends
+- [ ] Progress tracking — WPM over time, streak counter
 - [ ] Mobile app
 
 ---
@@ -141,28 +171,17 @@ articulate/
 
 ### POST `/api/transcribe`
 
-Accepts a `multipart/form-data` request with an `audio` file field. Returns the transcript.
+Accepts `multipart/form-data` with an `audio` file field. Returns transcript or 422 if too short.
 
 ```json
-// Response
-{
-  "transcript": "I think social media has fundamentally changed..."
-}
+{ "transcript": "I think social media has fundamentally changed..." }
 ```
 
 ### POST `/api/analyze`
 
-Accepts JSON with `transcript`, `duration`, and `targetDuration`. Returns full feedback.
+Accepts JSON with `transcript`, `duration`, `targetDuration`, and `topic`. Returns full feedback.
 
 ```json
-// Request
-{
-  "transcript": "I think social media...",
-  "duration": 120,
-  "targetDuration": 120
-}
-
-// Response
 {
   "overallScore": 7,
   "wpm": 134,
@@ -171,10 +190,17 @@ Accepts JSON with `transcript`, `duration`, and `targetDuration`. Returns full f
   "grammarIssues": 2,
   "clarity": 8,
   "coherence": 7,
-  "suggestions": ["..."],
+  "topicClarity": "The speaker addressed the core argument directly...",
+  "knowledgeGaps": ["market concentration data", "historical precedents", "consumer impact studies"],
+  "articulationReport": "Strong opening sentence. Repeated 'basically' three times...",
+  "suggestions": ["...", "...", "..."],
   "transcript": "..."
 }
 ```
+
+### POST `/api/sessions`
+
+Saves a completed session to MongoDB. GET returns last 50 sessions.
 
 ---
 
@@ -188,4 +214,4 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 
 ---
 
-Built by [Priyanshi Joshi](https://github.com/priyanshijoshiii)
+Built by [Priyanshi Joshi]
