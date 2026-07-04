@@ -148,20 +148,25 @@ export default function TopicCard({ onTopicChange }: TopicCardProps) {
         body: JSON.stringify({ input: searchInput.trim() }),
       })
 
-      if (!res.ok) throw new Error('Failed to generate')
-      const { topic } = await res.json()
+    if (!res.ok) {
+      const { message } = await res.json()
+      setSearchError(message || 'Could not generate topic. Try again.')
+      setIsGenerating(false)
+      return
+    }
+    const { topic } = await res.json()
 
-      setIsAnimating(true)
-      setTimeout(() => {
-        const generated: Topic = { text: topic, category: 'society' }
-        setCurrentTopic(generated)
-        setTopicCount(prev => prev + 1)
-        setIsAnimating(false)
-        onTopicChange?.(generated)
-        setSearchInput('')
-      }, 150)
+    setIsAnimating(true)
+    setTimeout(() => {
+      const generated: Topic = { text: topic, category: 'society' }
+      setCurrentTopic(generated)
+      setTopicCount(prev => prev + 1)
+      setIsAnimating(false)
+      onTopicChange?.(generated)
+      setSearchInput('')
+    }, 150)
 
-    } catch {
+    } catch (err) {
       setSearchError('Could not generate topic. Try again.')
     } finally {
       setIsGenerating(false)

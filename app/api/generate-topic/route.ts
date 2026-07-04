@@ -16,6 +16,28 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Gibberish detection
+    const cleaned = input.trim().toLowerCase()
+
+    // Check for repeated characters — "aaaa", "asdfgh"
+    const hasRepeatedPattern = /^(.)\1+$/.test(cleaned)
+
+    // Check for no vowels in a long word — likely gibberish
+    const words = cleaned.split(/\s+/)
+    const hasNoVowels = words.some(
+    (word: string) => word.length > 3 && !/[aeiou]/.test(word)
+    )
+
+    // Check for keyboard mashing patterns
+    const keyboardMash = /^[qwertasdfgzxcvb]{4,}$/i.test(cleaned.replace(/\s/g, ''))
+
+    if (hasRepeatedPattern || hasNoVowels || keyboardMash) {
+    return NextResponse.json(
+        { error: 'Gibberish', message: 'Please enter a real subject — try "cricket", "climate", or "leadership".' },
+        { status: 400 }
+    )
+    }    
+
     const completion = await groq.chat.completions.create({
       model: 'llama-3.1-8b-instant',
       temperature: 0.9,
