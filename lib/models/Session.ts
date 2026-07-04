@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose'
 
 export interface ISession extends Document {
+  userEmail: string 
   topic: string
   category: string
   transcript: string
@@ -25,6 +26,7 @@ export interface ISession extends Document {
 
 const SessionSchema = new Schema<ISession>(
   {
+    userEmail: { type: String, required: true },
     topic: { type: String, required: true },
     category: { type: String, default: 'general' },
     transcript: { type: String, required: true },

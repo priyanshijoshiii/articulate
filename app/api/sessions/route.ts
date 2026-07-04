@@ -2,14 +2,21 @@ import { NextRequest, NextResponse } from 'next/server'
 import { connectToDatabase } from '@/lib/mongodb'
 import Session from '@/lib/models/Session'
 
+
 // POST — save a new session
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 export async function POST(request: NextRequest) {
   try {
     await connectToDatabase()
 
+    const authSession = await getServerSession(authOptions)
+    const userEmail = authSession?.user?.email ?? 'anonymous'    
+
     const body = await request.json()
 
     const session = await Session.create({
+      userEmail,   
       topic: body.topic || 'Unknown topic',
       category: body.category || 'general',
       transcript: body.transcript || '',
@@ -43,6 +50,13 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   try {
     await connectToDatabase()
+
+    const authSession = await getServerSession(authOptions)
+    const userEmail = authSession?.user?.email ?? null
+
+    if (!userEmail) {
+      return NextResponse.json({ sessions: [] })
+    }
 
     const sessions = await Session.find({})
       .sort({ createdAt: -1 })
