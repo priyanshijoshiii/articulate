@@ -113,6 +113,7 @@ export default function TopicCard({ onTopicChange }: TopicCardProps) {
   const [searchInput, setSearchInput] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
   const [searchError, setSearchError] = useState('')
+  const [difficulty, setDifficulty] = useState<'beginner' | 'intermediate' | 'advanced'>('intermediate')
 
   function generateTopic() {
     const pool: Topic[] =
@@ -145,7 +146,7 @@ export default function TopicCard({ onTopicChange }: TopicCardProps) {
       const res = await fetch('/api/generate-topic', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ input: searchInput.trim() }),
+        body: JSON.stringify({ input: searchInput.trim(), difficulty }),
       })
 
     if (!res.ok) {
@@ -179,6 +180,29 @@ export default function TopicCard({ onTopicChange }: TopicCardProps) {
 
   return (
     <div className="space-y-3">
+      {/* Difficulty selector */}
+      <div className="flex items-center gap-3">
+        <span className="font-mono text-[9px] text-white/25 tracking-widest uppercase">Level</span>
+        <div className="flex gap-1.5">
+          {(['beginner', 'intermediate', 'advanced'] as const).map(level => (
+            <button
+              key={level}
+              onClick={() => setDifficulty(level)}
+              className={`font-mono text-[9px] tracking-wide uppercase px-3 py-1.5 border transition-all ${
+                difficulty === level
+                  ? level === 'beginner'
+                    ? 'border-green-500/50 text-green-400 bg-green-500/10'
+                    : level === 'intermediate'
+                    ? 'border-gold/50 text-gold bg-gold/10'
+                    : 'border-red-500/50 text-red-400 bg-red-500/10'
+                  : 'border-white/10 text-white/25 hover:border-white/20 hover:text-white/40'
+              }`}
+            >
+              {level}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Search bar */}
       <div className="flex gap-2">

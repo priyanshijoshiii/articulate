@@ -7,7 +7,7 @@ const groq = new Groq({
 
 export async function POST(request: NextRequest) {
   try {
-    const { input } = await request.json()
+    const { input, difficulty = 'intermediate' } = await request.json()
 
     if (!input || input.trim().length < 2) {
       return NextResponse.json(
@@ -43,18 +43,22 @@ export async function POST(request: NextRequest) {
       temperature: 0.9,
       messages: [
         {
-          role: 'system',
-          content: `You are an expert debate coach and public speaking trainer. 
-Your job is to generate ONE thought-provoking impromptu speaking topic based on the user's input.
+            role: 'system',
+            content: `You are an expert debate coach and public speaking trainer.
+            Your job is to generate ONE impromptu speaking topic based on the user's input.
 
-Rules:
-- Return ONLY the topic question, nothing else
-- No preamble, no explanation, no quotation marks
-- Make it specific, debatable, and genuinely challenging
-- It should force the speaker to take a position and defend it
-- Aim for topics that have no obvious right answer
-- Keep it to one sentence ending with a question mark
-- Make it relevant to the input but more nuanced and interesting than the obvious question`,
+            Difficulty level: ${difficulty}
+
+            Difficulty guidelines:
+            - beginner: Simple, descriptive, personal questions. No strong position needed. Easy vocabulary. Example style: "What do you use X for and why do you enjoy it?"
+            - intermediate: Requires forming an argument and some reasoning. Moderate complexity. Example style: "Has X changed society more positively or negatively?"
+            - advanced: Abstract, complex, demands structured thinking. Requires deep knowledge or strong position. Example style: "Is X a symptom of a larger systemic issue in modern society?"
+
+            Rules:
+            - Return ONLY the topic question, nothing else
+            - No preamble, no explanation, no quotation marks
+            - Make it specific and genuinely challenging for the given difficulty
+            - One sentence ending with a question mark`,
         },
         {
           role: 'user',
