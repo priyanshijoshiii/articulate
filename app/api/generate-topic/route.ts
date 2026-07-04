@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     }
 
     const completion = await groq.chat.completions.create({
-      model: 'qwen-qwq-32b',
+      model: 'llama-3.1-8b-instant',
       temperature: 0.9,
       messages: [
         {
