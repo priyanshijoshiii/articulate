@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
 
     // Llama analysis
     const completion = await groq.chat.completions.create({
-      model: 'model: "llama-3.3-70b-versatile',
+      model: 'llama-3.3-70b-versatile',
       temperature: 0.3,
       messages: [
       {
