@@ -7,6 +7,7 @@ import TopicCard from '@/components/TopicCard'
 import Timer from '@/components/Timer'
 import Recorder from '@/components/Recorder'
 import FeedbackPanel, { FeedbackData } from '@/components/FeedbackPanel'
+import Link from 'next/link'
 
 type Phase = 'idle' | 'thinking' | 'speaking' | 'done'
 
@@ -142,13 +143,19 @@ export default function Home() {
               Artic<span className="italic font-normal">ulate</span>
             </h1>
             <p className="font-mono text-[10px] text-white/30 tracking-widest uppercase mt-1">
-              Impromptu Speaking Trainer — v0.2
+              Impromptu Speaking Trainer
             </p>
           </div>
           <div className="flex items-center gap-4">
             <p className="font-mono text-[10px] text-white/25">
               {sessionCount} sessions today
             </p>
+            <Link
+              href="/history"
+              className="font-mono text-[9px] tracking-widest uppercase text-white/20 hover:text-white/40 transition-colors"
+            >
+              History
+            </Link>
             <button
               onClick={() => signOut({ callbackUrl: '/login' })}
               className="font-mono text-[9px] tracking-widest uppercase text-white/20 hover:text-white/40 transition-colors"
