@@ -72,7 +72,7 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           transcript,
-          duration,
+          duration: recordingDuration,
           targetDuration: duration,
           topic: currentTopic,
         }),
