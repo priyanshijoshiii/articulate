@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { redirect } from 'next/navigation'
 import TopicCard from '@/components/TopicCard'
@@ -25,6 +25,20 @@ export default function Home() {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [currentTopic, setCurrentTopic] = useState<string>('')
 
+  useEffect(() => {
+    fetch('/api/sessions')
+      .then(res => res.json())
+      .then(data => {
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        const todayCount = (data.sessions ?? []).filter((s: { createdAt: string }) => {
+          return new Date(s.createdAt) >= today
+        }).length
+        setSessionCount(todayCount)
+      })
+      .catch(() => {})
+  }, [])
+    
   const handlePhaseChange = useCallback((newPhase: Phase) => {
     setPhase(newPhase)
     if (newPhase === 'done') {
