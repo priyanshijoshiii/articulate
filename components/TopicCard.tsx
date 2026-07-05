@@ -275,12 +275,7 @@ export default function TopicCard({ onTopicChange, disabled = false }: TopicCard
           }`}
         >
 
-        <p className="font-mono text-[10px] text-white/20 tracking-wide">
-          {isAIGenerated
-            ? '↑ AI generated topic · type a new subject above to regenerate'
-            : '↑ click card to shuffle from library · type above to generate with AI'
-          }
-        </p>
+
 
         <div className="absolute left-0 top-0 w-[3px] h-full bg-gold" />
 
