@@ -43,6 +43,15 @@ export default function Recorder({ phase, onRecordingComplete }: RecorderProps) 
     }
   }, [])
 
+  // watches for phase going to idle and resets the recording state
+  useEffect(() => {
+    if (phase === 'idle') {
+      setRecordingState('idle')
+      setAudioUrl(null)
+      setPermissionDenied(false)
+    }
+  }, [phase])  
+
   // --- Core recording logic ---
   async function startRecording() {
     chunksRef.current = []
