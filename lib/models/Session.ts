@@ -30,10 +30,10 @@ const SessionSchema = new Schema<ISession>(
     topic: { type: String, required: true },
     category: { type: String, default: 'general' },
     transcript: { type: String, required: true },
-    duration: { type: Number, required: true },
+    duration: { type: Number, default: 0 },
     targetDuration: { type: Number, required: true },
     overallScore: { type: Number, required: true },
-    wpm: { type: Number, required: true },
+    wpm: { type: Number, default: 0 },
     wordCount: { type: Number, required: true },
     fillerWords: {
       count: { type: Number, default: 0 },

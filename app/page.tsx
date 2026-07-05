@@ -80,6 +80,11 @@ export default function Home() {
 
       if (!analyzeRes.ok) throw new Error('Analysis failed')
       const feedbackData = await analyzeRes.json()
+
+      if (!feedbackData.wpm || !feedbackData.duration) {
+        throw new Error('Incomplete feedback data')
+      }
+
       setFeedbackData(feedbackData)
       await saveSession(feedbackData, currentTopic)
 

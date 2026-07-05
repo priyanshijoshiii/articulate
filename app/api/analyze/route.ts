@@ -118,6 +118,7 @@ export async function POST(request: NextRequest) {
       clarity: (aiData.clarity as number) ?? 6,
       coherence: (aiData.coherence as number) ?? 6,
       speakingDuration: duration,
+      duration,
       targetDuration,
       suggestions: (aiData.suggestions as string[]) ?? [],
       transcript,
