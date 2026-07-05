@@ -184,6 +184,17 @@ export default function Recorder({ phase, onRecordingComplete }: RecorderProps) 
           <audio
             controls
             src={audioUrl}
+            preload="metadata"
+            onLoadedMetadata={(e) => {
+              const audio = e.target as HTMLAudioElement
+              if (audio.duration === Infinity) {
+                audio.currentTime = 1e101
+                audio.ontimeupdate = () => {
+                  audio.ontimeupdate = null
+                  audio.currentTime = 0
+                }
+              }
+            }}
             className="w-full h-8 opacity-60 hover:opacity-100 transition-opacity"
           />
         </div>

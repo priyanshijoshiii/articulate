@@ -94,6 +94,11 @@ export default function Home() {
 
 
   function handleStart() {
+    if (!currentTopic) {
+      alert('Please select or generate a topic first.')
+      return
+    }
+    setFeedbackData(null)
     if (thinkTime > 0) {
       setPhase('thinking')
     } else {
@@ -179,7 +184,10 @@ export default function Home() {
         {/* Topic section */}
         <section>
           <SectionLabel>Topic Prompt</SectionLabel>
-          <TopicCard onTopicChange={(t) => setCurrentTopic(t.text)} />
+          <TopicCard onTopicChange={(t) => setCurrentTopic(t.text)}
+           disabled={phase !== 'idle'}
+          />
+          
         </section>
 
         {/* Timer section */}

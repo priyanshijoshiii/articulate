@@ -11,6 +11,7 @@ interface Topic {
 
 interface TopicCardProps {
   onTopicChange?: (topic: Topic) => void
+  disabled?: boolean
 }
 
 const topics: Record<Exclude<Category, 'all'>, string[]> = {
@@ -105,7 +106,7 @@ const categories: Exclude<Category, 'all'>[] = [
   'philosophy', 'economics', 'science', 'leadership', 'india'
 ]
 
-export default function TopicCard({ onTopicChange }: TopicCardProps) {
+export default function TopicCard({ onTopicChange, disabled = false }: TopicCardProps) {
   const [activeCategory, setActiveCategory] = useState<Category>('all')
   const [currentTopic, setCurrentTopic] = useState<Topic | null>(null)
   const [topicCount, setTopicCount] = useState(0)
@@ -114,8 +115,11 @@ export default function TopicCard({ onTopicChange }: TopicCardProps) {
   const [isGenerating, setIsGenerating] = useState(false)
   const [searchError, setSearchError] = useState('')
   const [difficulty, setDifficulty] = useState<'beginner' | 'intermediate' | 'advanced'>('intermediate')
+  const [isAIGenerated, setIsAIGenerated] = useState(false)
 
   function generateTopic() {
+    if (disabled) return
+    setIsAIGenerated(false)
     const pool: Topic[] =
       activeCategory === 'all'
         ? categories.flatMap(cat =>
@@ -138,6 +142,7 @@ export default function TopicCard({ onTopicChange }: TopicCardProps) {
   }
 
   async function handleGenerateFromSearch() {
+    if (disabled || !searchInput.trim() || isGenerating) return
     if (!searchInput.trim() || isGenerating) return
     setSearchError('')
     setIsGenerating(true)
@@ -161,6 +166,7 @@ export default function TopicCard({ onTopicChange }: TopicCardProps) {
     setTimeout(() => {
       const generated: Topic = { text: topic, category: 'society' }
       setCurrentTopic(generated)
+      setIsAIGenerated(true)  
       setTopicCount(prev => prev + 1)
       setIsAnimating(false)
       onTopicChange?.(generated)
@@ -216,7 +222,7 @@ export default function TopicCard({ onTopicChange }: TopicCardProps) {
         />
         <button
           onClick={handleGenerateFromSearch}
-          disabled={!searchInput.trim() || isGenerating}
+          disabled={!searchInput.trim() || isGenerating || disabled}
           className="font-mono text-[10px] tracking-widest uppercase px-4 py-2.5 bg-gold/10 border border-gold/30 text-gold hover:bg-gold/20 transition-all disabled:opacity-30 disabled:cursor-not-allowed whitespace-nowrap"
         >
           {isGenerating ? 'Generating...' : 'Generate →'}
@@ -255,10 +261,27 @@ export default function TopicCard({ onTopicChange }: TopicCardProps) {
       </div>
 
       {/* Topic card */}
-      <div
-        onClick={generateTopic}
-        className="relative border border-gold-border bg-gold-dim p-7 cursor-pointer hover:bg-gold/20 transition-all group min-h-[100px] flex items-center"
-      >
+        <div
+          onClick={() => {
+            if (isAIGenerated) return  // don't shuffle AI generated topics
+            generateTopic()
+          }}
+          className={`relative border border-gold-border bg-gold-dim p-7 min-h-[100px] flex items-center transition-all ${
+            disabled
+              ? 'opacity-60 cursor-not-allowed'
+              : isAIGenerated
+              ? 'cursor-default'
+              : 'cursor-pointer hover:bg-gold/20'
+          }`}
+        >
+
+        <p className="font-mono text-[10px] text-white/20 tracking-wide">
+          {isAIGenerated
+            ? '↑ AI generated topic · type a new subject above to regenerate'
+            : '↑ click card to shuffle from library · type above to generate with AI'
+          }
+        </p>
+
         <div className="absolute left-0 top-0 w-[3px] h-full bg-gold" />
 
         {topicCount > 0 && (
