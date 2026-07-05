@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     }    
 
     const completion = await groq.chat.completions.create({
-      model: 'qwen/qwen3.6-27b',
+      model: 'openai/gpt-oss-20b',
       temperature: 0.9,
       messages: [
         {
