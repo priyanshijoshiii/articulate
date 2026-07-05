@@ -43,9 +43,8 @@ export default function Home() {
     return null
   }
 
-  async function handleRecordingComplete(blob: Blob, duration: number) {
+  async function handleRecordingComplete(blob: Blob, recordingDuration: number) {
     setAudioBlob(blob)
-    setRecordingDuration(duration)
     setIsAnalyzing(true)
 
     try {
@@ -95,7 +94,6 @@ export default function Home() {
       setIsAnalyzing(false)
     }
   }
-
 
 
   function handleStart() {
