@@ -101,7 +101,7 @@ export default function HistoryPage() {
             </p>
           </div>
           <Link
-            href="/"
+            href="/train"
             className="font-mono text-[9px] tracking-widest uppercase text-white/20 hover:text-white/40 transition-colors"
           >
             ← Back to trainer
