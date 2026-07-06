@@ -146,41 +146,43 @@ export default function Home() {
     }
   }
 
-  return (
-    <main className="min-h-screen bg-ink p-8 flex justify-center">
-      <div className="w-full max-w-2xl space-y-8">
+return (
+    <main className="min-h-screen bg-ink">
 
-        {/* Header */}
-        <div className="border-b border-gold/10 pb-6 flex justify-between items-end">
-          <div>
-            <h1 className="font-serif text-xl text-gold font-semibold">
-              Artic<span className="italic font-normal">ulate</span>
-            </h1>
-            <p className="font-mono text-[10px] text-white/30 tracking-widest uppercase mt-1">
-              Impromptu Speaking Trainer
-            </p>
-          </div>
-          <div className="flex items-center gap-4">
-            <p className="font-mono text-[10px] text-white/25">
-              {sessionCount} sessions today
-            </p>
-            <Link
-              href="/history"
-              className="font-mono text-[9px] tracking-widest uppercase text-white/20 hover:text-white/40 transition-colors"
-            >
-              History
-            </Link>
-            <button
-              onClick={() => signOut({ callbackUrl: '/login' })}
-              className="font-mono text-[9px] tracking-widest uppercase text-white/20 hover:text-white/40 transition-colors"
-            >
-              Sign out
-            </button>
-          </div>
+      {/* Top bar */}
+      <div className="border-b border-gold/10 px-4 sm:px-8 py-4 flex items-center justify-between">
+        <div>
+          <h1 className="font-serif text-lg text-gold font-semibold">
+            Artic<span className="italic font-normal">ulate</span>
+          </h1>
+          <p className="font-mono text-[9px] text-white/20 tracking-widest uppercase hidden sm:block">
+            Impromptu Speaking Trainer
+          </p>
         </div>
+        <div className="flex items-center gap-3 sm:gap-4">
+          <span className="font-mono text-[10px] text-white/25 hidden sm:block">
+            {sessionCount} sessions today
+          </span>
+          <Link
+            href="/history"
+            className="font-mono text-[9px] tracking-widest uppercase text-white/30 hover:text-white/50 transition-colors"
+          >
+            History
+          </Link>
+          <button
+            onClick={() => signOut({ callbackUrl: '/login' })}
+            className="font-mono text-[9px] tracking-widest uppercase text-white/30 hover:text-white/50 transition-colors"
+          >
+            Sign out
+          </button>
+        </div>
+      </div>
 
-        {/* Status bar */}
-        <div className="grid grid-cols-4 border border-gold/10">
+      {/* Content */}
+      <div className="max-w-2xl mx-auto px-4 sm:px-8 py-6 sm:py-10 space-y-6 sm:space-y-8">
+
+        {/* Status bar — 2 cols on mobile, 4 on desktop */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 border border-gold/10">
           {[
             { label: 'Phase', value: phase.toUpperCase() },
             { label: 'Duration', value: `${duration / 60}:00` },
@@ -189,9 +191,13 @@ export default function Home() {
           ].map((cell, i) => (
             <div
               key={i}
-              className={`px-4 py-2.5 ${i < 3 ? 'border-r border-gold/10' : ''}`}
+              className={`px-3 py-2.5 ${
+                i % 2 === 0 ? 'border-r border-gold/10' : ''
+              } ${
+                i < 2 ? 'border-b sm:border-b-0 border-gold/10' : ''
+              } sm:border-r sm:last:border-r-0`}
             >
-              <p className="font-mono text-[9px] tracking-widest uppercase text-white/25 mb-0.5">
+              <p className="font-mono text-[8px] tracking-widest uppercase text-white/25 mb-0.5">
                 {cell.label}
               </p>
               <p className={`font-mono text-sm font-medium ${
@@ -208,10 +214,10 @@ export default function Home() {
         {/* Topic section */}
         <section>
           <SectionLabel>Topic Prompt</SectionLabel>
-          <TopicCard onTopicChange={(t) => setCurrentTopic(t.text)}
-           disabled={phase !== 'idle'}
+          <TopicCard
+            onTopicChange={(t) => setCurrentTopic(t.text)}
+            disabled={phase !== 'idle'}
           />
-          
         </section>
 
         {/* Timer section */}
@@ -228,33 +234,30 @@ export default function Home() {
         </section>
 
         {/* Recorder section */}
-        <section>
-          <SectionLabel>Recording</SectionLabel>
-          <Recorder
-            phase={phase}
-            onRecordingComplete={handleRecordingComplete}
-          />
-        </section>
+        <Recorder
+          phase={phase}
+          onRecordingComplete={handleRecordingComplete}
+        />
 
         {/* Controls */}
-        <div className="flex gap-2">
+        <div className="grid grid-cols-3 gap-2">
           <button
             onClick={handleStart}
             disabled={phase !== 'idle'}
-            className="flex-1 font-mono text-[11px] tracking-widest uppercase py-3 bg-gold text-ink font-medium hover:bg-gold/90 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+            className="col-span-1 font-mono text-[10px] tracking-widest uppercase py-3.5 bg-gold text-ink font-medium hover:bg-gold/90 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
           >
-            ▶ Start Session
+            ▶ Start
           </button>
           <button
             onClick={handleStop}
             disabled={phase === 'idle' || phase === 'done'}
-            className="flex-1 font-mono text-[11px] tracking-widest uppercase py-3 border border-white/10 text-white/50 hover:border-gold/50 hover:text-gold/70 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+            className="font-mono text-[10px] tracking-widest uppercase py-3.5 border border-white/10 text-white/50 hover:border-gold/50 hover:text-gold/70 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
           >
             ■ Stop
           </button>
           <button
             onClick={handleReset}
-            className="flex-1 font-mono text-[11px] tracking-widest uppercase py-3 border border-white/10 text-white/50 hover:border-gold/50 hover:text-gold/70 transition-all"
+            className="font-mono text-[10px] tracking-widest uppercase py-3.5 border border-white/10 text-white/50 hover:border-gold/50 hover:text-gold/70 transition-all"
           >
             ↺ Reset
           </button>

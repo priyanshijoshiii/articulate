@@ -221,13 +221,13 @@ interface DurationSelectorProps {
 
 function DurationSelector({ options, selected, disabled, onSelect }: DurationSelectorProps) {
   return (
-    <div className="flex gap-1.5">
+    <div className="flex gap-1.5 flex-wrap">
       {options.map(opt => (
         <button
           key={opt.value}
           onClick={() => onSelect(opt.value)}
           disabled={disabled}
-          className={`font-mono text-[10px] tracking-wide px-3 py-1.5 border transition-all disabled:opacity-30 disabled:cursor-not-allowed ${
+          className={`font-mono text-[10px] tracking-wide px-2.5 py-1.5 border transition-all disabled:opacity-30 disabled:cursor-not-allowed ${
             selected === opt.value
               ? 'border-gold bg-gold text-ink font-medium'
               : 'border-white/10 text-white/40 hover:border-gold/50 hover:text-gold/70'
