@@ -173,9 +173,7 @@ return (
         </Link>
       </div>
       <div className="flex items-center gap-4">
-        <span className="font-mono text-[10px] text-white/25 hidden sm:block">
-          {sessionCount} sessions today
-        </span>
+
         <Link
           href="/history"
           className="font-mono text-[10px] tracking-widest uppercase text-white/30 hover:text-white/50 transition-colors"
