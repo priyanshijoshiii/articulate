@@ -286,7 +286,7 @@ export default function TopicCard({ onTopicChange, disabled = false }: TopicCard
         )}
 
         <p
-          className={`font-serif text-xl leading-relaxed transition-opacity duration-150 ${
+          className={`font-serif text-2xl sm:text-3xl leading-relaxed transition-opacity duration-150 ${
             isAnimating ? 'opacity-0' : 'opacity-100'
           } ${currentTopic ? 'text-white/90' : 'text-white/30 italic text-base'}`}
         >
@@ -296,7 +296,7 @@ export default function TopicCard({ onTopicChange, disabled = false }: TopicCard
         </p>
       </div>
 
-      <p className="font-mono text-[10px] text-white/20 tracking-wide">
+      <p className="font-mono text-[11px] text-white/40 tracking-wide">
         ↑ click card to shuffle from library · type above to generate with AI
       </p>
 

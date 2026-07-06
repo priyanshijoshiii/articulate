@@ -161,133 +161,122 @@ function Home() {
   }
 
 return (
-    <main className="min-h-screen bg-ink">
+  <main className="min-h-screen bg-ink">
 
-      {/* Top bar */}
-      <div className="border-b border-gold/10 px-4 sm:px-8 py-4 flex items-center justify-between">
-        <div>
+    {/* Nav */}
+    <div className="border-b border-white/[0.06] px-4 sm:px-8 py-4 flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <Link href="/">
           <h1 className="font-serif text-lg text-gold font-semibold">
             Artic<span className="italic font-normal">ulate</span>
           </h1>
-          <p className="font-mono text-[9px] text-white/20 tracking-widest uppercase hidden sm:block">
-            Impromptu Speaking Trainer
-          </p>
-        </div>
-        <div className="flex items-center gap-3 sm:gap-4">
-          <span className="font-mono text-[10px] text-white/25 hidden sm:block">
-            {sessionCount} sessions today
-          </span>
-          <Link
-            href="/history"
-            className="font-mono text-[9px] tracking-widest uppercase text-white/30 hover:text-white/50 transition-colors"
-          >
-            History
-          </Link>
-          <button
-            onClick={() => signOut({ callbackUrl: '/login' })}
-            className="font-mono text-[9px] tracking-widest uppercase text-white/30 hover:text-white/50 transition-colors"
-          >
-            Sign out
-          </button>
-        </div>
+        </Link>
+      </div>
+      <div className="flex items-center gap-4">
+        <span className="font-mono text-[10px] text-white/25 hidden sm:block">
+          {sessionCount} sessions today
+        </span>
+        <Link
+          href="/history"
+          className="font-mono text-[10px] tracking-widest uppercase text-white/30 hover:text-white/50 transition-colors"
+        >
+          History
+        </Link>
+        <button
+          onClick={() => signOut({ callbackUrl: '/login' })}
+          className="font-mono text-[10px] tracking-widest uppercase text-white/30 hover:text-white/50 transition-colors"
+        >
+          Sign out
+        </button>
+      </div>
+    </div>
+
+    <div className="max-w-2xl mx-auto px-4 sm:px-8 py-8 space-y-10">
+
+      {/* Phase indicator — quiet, not a grid */}
+      <div className="flex items-center justify-between">
+        <span className={`font-mono text-[11px] tracking-widest uppercase font-medium ${
+          phase === 'speaking' ? 'text-red-400' :
+          phase === 'thinking' ? 'text-gold' :
+          phase === 'done' ? 'text-green-400' :
+          'text-white/25'
+        }`}>
+          {phase}
+        </span>
+        <span className="font-mono text-[11px] text-white/25">
+          {sessionCount} session{sessionCount !== 1 ? 's' : ''} today
+        </span>
       </div>
 
-      {/* Content */}
-      <div className="max-w-2xl mx-auto px-4 sm:px-8 py-6 sm:py-10 space-y-6 sm:space-y-8">
-
-        {/* Status bar — 2 cols on mobile, 4 on desktop */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 border border-gold/10">
-          {[
-            { label: 'Phase', value: phase.toUpperCase() },
-            { label: 'Duration', value: `${duration / 60}:00` },
-            { label: 'Prep', value: thinkTime === 0 ? 'None' : `${thinkTime}s` },
-            { label: 'Sessions', value: sessionCount.toString() },
-          ].map((cell, i) => (
-            <div
-              key={i}
-              className={`px-3 py-2.5 ${
-                i % 2 === 0 ? 'border-r border-gold/10' : ''
-              } ${
-                i < 2 ? 'border-b sm:border-b-0 border-gold/10' : ''
-              } sm:border-r sm:last:border-r-0`}
-            >
-              <p className="font-mono text-[8px] tracking-widest uppercase text-white/25 mb-0.5">
-                {cell.label}
-              </p>
-              <p className={`font-mono text-sm font-medium ${
-                cell.label === 'Phase' && phase === 'speaking'
-                  ? 'text-red-400'
-                  : 'text-white/70'
-              }`}>
-                {cell.value}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        {/* Topic section */}
-        <section>
-          <SectionLabel>Topic Prompt</SectionLabel>
-          <TopicCard
-            onTopicChange={(t) => setCurrentTopic(t.text)}
-            disabled={phase !== 'idle'}
-          />
-        </section>
-
-        {/* Timer section */}
-        <section>
-          <SectionLabel>Timer</SectionLabel>
-          <Timer
-            phase={phase}
-            onPhaseChange={handlePhaseChange}
-            duration={duration}
-            thinkTime={thinkTime}
-            onDurationChange={setDuration}
-            onThinkTimeChange={setThinkTime}
-          />
-        </section>
-
-        {/* Recorder section */}
-        <Recorder
-          phase={phase}
-          onRecordingComplete={handleRecordingComplete}
+      {/* Topic — dominant element */}
+      <div className="space-y-4">
+        <p className="font-mono text-[10px] tracking-[0.16em] uppercase text-white/30">
+          Topic Prompt
+        </p>
+        <TopicCard
+          onTopicChange={(t) => setCurrentTopic(t.text)}
+          disabled={phase !== 'idle'}
         />
-
-        {/* Controls */}
-        <div className="grid grid-cols-3 gap-2">
-          <button
-            onClick={handleStart}
-            disabled={phase !== 'idle'}
-            className="col-span-1 font-mono text-[10px] tracking-widest uppercase py-3.5 bg-gold text-ink font-medium hover:bg-gold/90 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-          >
-            ▶ Start
-          </button>
-          <button
-            onClick={handleStop}
-            disabled={phase === 'idle' || phase === 'done'}
-            className="font-mono text-[10px] tracking-widest uppercase py-3.5 border border-white/10 text-white/50 hover:border-gold/50 hover:text-gold/70 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-          >
-            ■ Stop
-          </button>
-          <button
-            onClick={handleReset}
-            className="font-mono text-[10px] tracking-widest uppercase py-3.5 border border-white/10 text-white/50 hover:border-gold/50 hover:text-gold/70 transition-all"
-          >
-            ↺ Reset
-          </button>
-        </div>
-
-        {/* Feedback section */}
-        {(isAnalyzing || feedbackData) && (
-          <section>
-            <SectionLabel>Analysis</SectionLabel>
-            <FeedbackPanel data={feedbackData} isLoading={isAnalyzing} />
-          </section>
-        )}
-
       </div>
-    </main>
-  )
+
+      {/* Timer */}
+      <div className="space-y-4">
+        <p className="font-mono text-[10px] tracking-[0.16em] uppercase text-white/30">
+          Timer
+        </p>
+        <Timer
+          phase={phase}
+          onPhaseChange={handlePhaseChange}
+          duration={duration}
+          thinkTime={thinkTime}
+          onDurationChange={setDuration}
+          onThinkTimeChange={setThinkTime}
+        />
+      </div>
+
+      {/* Recorder */}
+      <Recorder
+        phase={phase}
+        onRecordingComplete={handleRecordingComplete}
+      />
+
+      {/* Controls */}
+      <div className="grid grid-cols-3 gap-2">
+        <button
+          onClick={handleStart}
+          disabled={phase !== 'idle'}
+          className="font-mono text-[11px] tracking-widest uppercase py-4 bg-gold text-ink font-medium hover:bg-gold/90 transition-all disabled:opacity-25 disabled:cursor-not-allowed"
+        >
+          ▶ Start
+        </button>
+        <button
+          onClick={handleStop}
+          disabled={phase === 'idle' || phase === 'done'}
+          className="font-mono text-[11px] tracking-widest uppercase py-4 border border-white/10 text-white/40 hover:border-white/20 hover:text-white/60 transition-all disabled:opacity-25 disabled:cursor-not-allowed"
+        >
+          ■ Stop
+        </button>
+        <button
+          onClick={handleReset}
+          className="font-mono text-[11px] tracking-widest uppercase py-4 border border-white/10 text-white/40 hover:border-white/20 hover:text-white/60 transition-all"
+        >
+          ↺ Reset
+        </button>
+      </div>
+
+      {/* Feedback */}
+      {(isAnalyzing || feedbackData) && (
+        <div className="space-y-4">
+          <p className="font-mono text-[10px] tracking-[0.16em] uppercase text-white/30">
+            Analysis
+          </p>
+          <FeedbackPanel data={feedbackData} isLoading={isAnalyzing} />
+        </div>
+      )}
+
+    </div>
+  </main>
+)
 }
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
