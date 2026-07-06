@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useSession } from 'next-auth/react'
+import { useSession, signOut } from 'next-auth/react'
 import { redirect, useRouter } from 'next/navigation'
 import Link from 'next/link'
 
@@ -74,132 +74,67 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-ink flex flex-col">
 
-      {/* Nav */}
-      <nav className="px-6 sm:px-10 py-5 flex justify-between items-center border-b border-white/[0.06]">
+        {/* Nav */}
+        <nav className="px-6 sm:px-10 py-5 flex justify-between items-center border-b border-white/[0.06]">
         <h1 className="font-serif text-lg text-gold font-semibold">
-          Artic<span className="italic font-normal">ulate</span>
+            Artic<span className="italic font-normal">ulate</span>
         </h1>
         <div className="flex items-center gap-4 sm:gap-6">
-          <Link
+            <Link
             href="/history"
             className="font-mono text-[10px] tracking-widest uppercase text-white/30 hover:text-white/50 transition-colors"
-          >
-            History
-          </Link>
-          <span className="font-mono text-[10px] text-white/20 hidden sm:block">
-            {session.user?.name?.split(' ')[0]}
-          </span>
-        </div>
-      </nav>
-
-      {/* Hero */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 sm:px-10 py-12 sm:py-20">
-        <div className="w-full max-w-xl space-y-10 sm:space-y-14">
-
-          {/* Intro text */}
-          <div className="space-y-3 text-center">
-            <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-gold/60">
-              Impromptu Speaking Trainer
-            </p>
-            <h2 className="font-serif text-2xl sm:text-3xl text-white/80 font-normal leading-snug">
-              Think on your feet.<br />
-              <span className="italic text-white/40">Get better every time.</span>
-            </h2>
-          </div>
-
-          {/* Topic display */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="font-mono text-[9px] tracking-[0.16em] uppercase text-white/25">
-                Your topic
-              </span>
-              <span className="font-mono text-[9px] text-gold/40 tracking-wide">
-                {currentTopic.category}
-              </span>
-            </div>
-
-            <div
-              onClick={shuffleTopic}
-              className="cursor-pointer group"
             >
-              <p className={`font-serif text-xl sm:text-2xl text-white/85 leading-relaxed transition-opacity duration-150 ${
-                isAnimating ? 'opacity-0' : 'opacity-100'
-              }`}>
-                {currentTopic.text}
-              </p>
-              <p className="font-mono text-[9px] text-white/20 mt-3 tracking-wide group-hover:text-white/35 transition-colors">
-                ↓ click to shuffle
-              </p>
-            </div>
-          </div>
-
-          {/* Config */}
-          <div className="space-y-5">
-
-            {/* Duration */}
-            <div className="space-y-2">
-              <p className="font-mono text-[9px] tracking-[0.16em] uppercase text-white/25">
-                Speaking duration
-              </p>
-              <div className="flex gap-2 flex-wrap">
-                {durationOptions.map(opt => (
-                  <button
-                    key={opt.value}
-                    onClick={() => setDuration(opt.value)}
-                    className={`font-mono text-[10px] tracking-wide px-4 py-2 border transition-all ${
-                      duration === opt.value
-                        ? 'border-gold bg-gold text-ink font-medium'
-                        : 'border-white/10 text-white/35 hover:border-white/25 hover:text-white/55'
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Prep time */}
-            <div className="space-y-2">
-              <p className="font-mono text-[9px] tracking-[0.16em] uppercase text-white/25">
-                Preparation time
-              </p>
-              <div className="flex gap-2 flex-wrap">
-                {prepOptions.map(opt => (
-                  <button
-                    key={opt.value}
-                    onClick={() => setPrep(opt.value)}
-                    className={`font-mono text-[10px] tracking-wide px-4 py-2 border transition-all ${
-                      prep === opt.value
-                        ? 'border-gold bg-gold text-ink font-medium'
-                        : 'border-white/10 text-white/35 hover:border-white/25 hover:text-white/55'
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-          </div>
-
-          {/* CTA */}
-          <button
-            onClick={handleStart}
-            className="w-full font-mono text-[11px] tracking-[0.15em] uppercase py-4 bg-gold text-ink font-medium hover:bg-gold/90 transition-all"
-          >
-            Start Session →
-          </button>
-
-          <p className="font-mono text-[9px] text-white/15 text-center tracking-wide">
-            Or go to the full trainer to choose from 85 topics and generate custom ones
-            <Link href="/train" className="text-white/25 hover:text-white/40 ml-1 transition-colors">
-              Open trainer →
+            History
             </Link>
-          </p>
+            <button
+            onClick={() => signOut({ callbackUrl: '/login' })}
+            className="font-mono text-[10px] tracking-widest uppercase text-white/30 hover:text-white/50 transition-colors"
+            >
+            Sign out
+            </button>
+        </div>
+        </nav>
+
+        {/* Hero */}
+        <div className="flex-1 flex flex-col items-center justify-center px-6 text-center space-y-10">
+
+        {/* Headline */}
+        <div className="space-y-2">
+            <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-gold/60">
+            Impromptu Speaking Trainer
+            </p>
+            <h2 className="font-serif text-3xl sm:text-4xl text-white/80 font-normal leading-snug">
+            Think on your feet.<br />
+            <span className="italic text-white/40">Get better every time.</span>
+            </h2>
+        </div>
+
+        {/* Trainer link */}
+        <p className="font-mono text-[11px] text-white/30 tracking-wide max-w-xs leading-relaxed">
+            Choose from 85 topics or generate a custom one —{' '}
+            <Link
+            href="/train"
+            className="text-gold/60 hover:text-gold transition-colors underline underline-offset-4"
+            >
+            open the full trainer
+            </Link>
+        </p>
+
+        {/* CTA */}
+        <div className="space-y-3">
+            <Link
+            href="/train"
+            className="inline-block font-mono text-[11px] tracking-[0.15em] uppercase py-4 px-12 bg-gold text-ink font-medium hover:bg-gold/90 transition-all"
+            >
+            Get Started
+            </Link>
+            <p className="font-mono text-[10px] text-white/20 tracking-wide italic">
+            ( remember you're a rockstar — you got this )
+            </p>
+        </div>
 
         </div>
-      </div>
 
     </main>
-  )
+    )
 }
