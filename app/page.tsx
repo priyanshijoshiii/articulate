@@ -98,7 +98,7 @@ export default function HomePage() {
 
         {/* Hero */}
         <div className="flex-1 flex flex-col items-center justify-center px-6 text-center space-y-10 pt-8">
-          
+
         {/* Headline */}
         <div className="space-y-2">
             <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-gold/60">
@@ -112,13 +112,8 @@ export default function HomePage() {
 
         {/* Trainer link */}
         <p className="font-mono text-[11px] text-white/30 tracking-wide max-w-xs leading-relaxed">
-            Choose from 85 topics or generate a custom one —{' '}
-            <Link
-            href="/train"
-            className="text-gold/60 hover:text-gold transition-colors underline underline-offset-4"
-            >
-            open the full trainer
-            </Link>
+            Choose from 85 topics or generate a custom ones
+
         </p>
 
         {/* CTA */}
