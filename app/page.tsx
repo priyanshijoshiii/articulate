@@ -97,7 +97,7 @@ export default function HomePage() {
         </nav>
 
         {/* Hero */}
-        <div className="flex-1 flex flex-col items-center justify-center px-6 text-center space-y-10 pt-8">
+        <div className="flex-1 flex flex-col items-center justify-center px-6 text-center space-y-7 pt-8">
 
         {/* Headline */}
         <div className="space-y-2">
@@ -111,18 +111,18 @@ export default function HomePage() {
         </div>
 
         {/* Trainer link */}
-        <p className="font-mono text-[11px] text-white/30 tracking-wide max-w-xs leading-loose">
+        <p className="font-mono text-[11px] text-white/30 tracking-wide leading-loose">
           Pick a topic → speak for 1–5 minutes → get AI feedback on your articulation
         </p>
 
         {/* CTA */}
         <div className="space-y-3">
-            <Link
+          <Link
             href="/train"
             className="inline-block font-mono text-[11px] tracking-[0.15em] uppercase py-4 px-12 bg-gold text-ink font-medium hover:bg-gold/90 transition-all"
-            >
+          >
             Get Started
-            </Link>
+          </Link>
             <p className="font-mono text-[10px] text-white/20 tracking-wide italic">
             ( remember you're a rockstar — you got this )
             </p>
