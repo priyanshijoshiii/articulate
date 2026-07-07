@@ -1,6 +1,7 @@
 import { IBM_Plex_Mono, IBM_Plex_Sans, Playfair_Display } from 'next/font/google'
 import './globals.css'
 import Providers from '@/components/Providers'
+import { Analytics } from '@vercel/analytics/react'
 
 const mono = IBM_Plex_Mono({
   subsets: ['latin'],
@@ -28,6 +29,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <Analytics />
       <body className={`${mono.variable} ${sans.variable} ${serif.variable} bg-ink text-amber-50`}>
         <Providers>{children}</Providers>
       </body>
