@@ -112,7 +112,7 @@ export default function HomePage() {
 
         {/* Trainer link */}
         <p className="font-mono text-[11px] text-white/30 tracking-wide leading-loose">
-          Pick a topic → speak for 1–5 minutes → get AI feedback on your articulation
+          Pick a topic → speak → get feedback on exactly how you spoke
         </p>
 
         {/* CTA */}
