@@ -18,6 +18,9 @@ export async function POST(request: NextRequest) {
     if (!feedback?.trim()) {
       return NextResponse.json({ error: 'Empty feedback' }, { status: 400 })
     }
+    if (feedback.length > 2000) {
+        return NextResponse.json({ error: 'Feedback too long' }, { status: 400 })
+    }
 
     await Feedback.create({ feedback: feedback.trim() })
     return NextResponse.json({ success: true })

@@ -1,5 +1,7 @@
 import Groq from 'groq-sdk'
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
@@ -7,6 +9,12 @@ const groq = new Groq({
 
 export async function POST(request: NextRequest) {
   try {
+    //checking that the user is authenticated before hitting Groq.
+    const session = await getServerSession(authOptions)
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }    
+
     // 1. Get the audio blob from the request
     const formData = await request.formData()
     const audioFile = formData.get('audio') as File

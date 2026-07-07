@@ -1,5 +1,7 @@
 import Groq from 'groq-sdk'
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
 
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
@@ -7,6 +9,10 @@ const groq = new Groq({
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions)
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }    
     const { transcript, duration, targetDuration, topic } = await request.json()
 
     if (!transcript || transcript.trim().length === 0) {
@@ -85,6 +91,14 @@ export async function POST(request: NextRequest) {
     ],
     })
 
+    if (transcript.length > 10000) {
+      return NextResponse.json({ error: 'Transcript too long' }, { status: 400 })
+    }
+
+    if (topic && topic.length > 500) {
+      return NextResponse.json({ error: 'Topic too long' }, { status: 400 })
+    }
+    
     // Parse response safely
     const rawResponse = completion.choices[0].message.content ?? '{}'
     console.log('Raw AI response:', rawResponse)
