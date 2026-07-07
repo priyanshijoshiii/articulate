@@ -111,9 +111,8 @@ export default function HomePage() {
         </div>
 
         {/* Trainer link */}
-        <p className="font-mono text-[11px] text-white/30 tracking-wide max-w-xs leading-relaxed">
-            Choose from 85 topics or generate a custom ones
-
+        <p className="font-mono text-[11px] text-white/30 tracking-wide max-w-xs leading-loose">
+          Pick a topic → speak for 1–5 minutes → get AI feedback on your articulation
         </p>
 
         {/* CTA */}
