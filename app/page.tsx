@@ -73,7 +73,7 @@ export default function HomePage() {
   const currentTopic = featuredTopics[topicIndex]
 
   return (
-    <main className="min-h-screen bg-ink flex flex-col">
+    <main className="min-h-screen bg-ink flex flex-col justify-between">
 
         {/* Nav */}
         <nav className="px-6 sm:px-10 py-5 flex justify-between items-center">
