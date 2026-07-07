@@ -58,7 +58,7 @@ export async function GET() {
       return NextResponse.json({ sessions: [] })
     }
 
-    const sessions = await Session.find({})
+    const sessions = await Session.find({ userEmail })
       .sort({ createdAt: -1 })
       .limit(50)
       .lean()
