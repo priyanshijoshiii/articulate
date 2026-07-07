@@ -49,10 +49,17 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Transcription error:', error)
+    console.error('Error:', error)
+    const isRateLimit = error instanceof Error && 
+      (error.message.includes('rate') || error.message.includes('429'))
     return NextResponse.json(
-      { error: 'Transcription failed' },
-      { status: 500 }
+      { 
+        error: isRateLimit ? 'rate_limit' : 'failed',
+        message: isRateLimit 
+          ? 'High demand right now — please try again in a moment.' 
+          : 'Something went wrong.'
+      },
+      { status: isRateLimit ? 429 : 500 }
     )
   }
 }

@@ -8,6 +8,7 @@ import Timer from '@/components/Timer'
 import Recorder from '@/components/Recorder'
 import FeedbackPanel, { FeedbackData } from '@/components/FeedbackPanel'
 import Link from 'next/link'
+import Footer from '@/components/Footer'
 
 type Phase = 'idle' | 'thinking' | 'speaking' | 'done'
 
@@ -92,7 +93,10 @@ function Home() {
         return
       }
 
-      if (!transcribeRes.ok) throw new Error('Transcription failed')
+      if (!transcribeRes.ok) {
+        const { message } = await transcribeRes.json()
+        throw new Error(message || 'Transcription failed')
+      }
       const { transcript } = await transcribeRes.json()
 
       const analyzeRes = await fetch('/api/analyze', {
@@ -106,7 +110,10 @@ function Home() {
         }),
       })
 
-      if (!analyzeRes.ok) throw new Error('Analysis failed')
+    if (!analyzeRes.ok) {
+      const { message } = await analyzeRes.json()
+      throw new Error(message || 'Analysis failed')
+    }
       const feedbackData = await analyzeRes.json()
 
       if (!feedbackData.wpm || !feedbackData.duration) {
@@ -116,10 +123,13 @@ function Home() {
       setFeedbackData(feedbackData)
       await saveSession(feedbackData, currentTopic)
 
-    } catch (err) {
-      console.error('Pipeline error:', err)
-      alert('Something went wrong. Please try again.')
-    } finally {
+      } catch (err: unknown) {
+        console.error('Pipeline error:', err)
+        const message = err instanceof Error && err.message.includes('rate')
+          ? 'High demand right now — please try again in a moment.'
+          : 'Something went wrong. Please try again.'
+        alert(message)
+      } finally {
       setIsAnalyzing(false)
     }
   }
@@ -273,6 +283,7 @@ return (
       )}
 
     </div>
+    <Footer />
   </main>
 )
 }

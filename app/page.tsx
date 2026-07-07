@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { redirect, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Footer from '@/components/Footer'
 
 const featuredTopics = [
   { text: 'Should social media platforms be held legally responsible for the content they host?', category: 'Society' },
@@ -134,7 +135,7 @@ export default function HomePage() {
         </div>
 
         </div>
-
+        <Footer />
     </main>
     )
 }
