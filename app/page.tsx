@@ -76,7 +76,7 @@ export default function HomePage() {
     <main className="min-h-screen bg-ink flex flex-col">
 
         {/* Nav */}
-        <nav className="px-6 sm:px-10 py-5 flex justify-between items-center border-b border-white/[0.06]">
+        <nav className="px-6 sm:px-10 py-5 flex justify-between items-center">
         <h1 className="font-serif text-lg text-gold font-semibold">
             Artic<span className="italic font-normal">ulate</span>
         </h1>
@@ -97,8 +97,8 @@ export default function HomePage() {
         </nav>
 
         {/* Hero */}
-        <div className="flex-1 flex flex-col items-center justify-center px-6 text-center space-y-10">
-
+        <div className="flex-1 flex flex-col items-center justify-center px-6 text-center space-y-10 pt-8">
+          
         {/* Headline */}
         <div className="space-y-2">
             <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-gold/60">
