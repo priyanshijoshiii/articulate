@@ -27,6 +27,14 @@ function Home() {
   const [feedbackData, setFeedbackData] = useState<FeedbackData | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [currentTopic, setCurrentTopic] = useState<string>('')
+  const [previousScore, setPreviousScore] = useState<number | null>(null)
+  const [previousTranscript, setPreviousTranscript] = useState<string | null>(null)
+  const [isRetake, setIsRetake] = useState(false)
+  const [comparisonData, setComparisonData] = useState<{
+    improvement: string
+    stillNeeds: string
+    verdict: string
+  } | null>(null)
 
   const searchParams = useSearchParams()
 
@@ -123,6 +131,30 @@ function Home() {
       setFeedbackData(feedbackData)
       await saveSession(feedbackData, currentTopic)
 
+      //if this was a retake, run comparison
+      if (isRetake && previousTranscript && previousScore !== null) {
+      try {
+        const compareRes = await fetch('/api/compare', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            originalTranscript: previousTranscript,
+            newTranscript: feedbackData.transcript,
+            originalScore: previousScore,
+            newScore: feedbackData.overallScore,
+            topic: currentTopic,
+          }),
+        })
+        if (compareRes.ok) {
+          const comparison = await compareRes.json()
+          setComparisonData(comparison)
+        }
+      } catch (err) {
+        console.error('Comparison error:', err)
+      }
+    }
+
+
       } catch (err: unknown) {
         console.error('Pipeline error:', err)
         const message = err instanceof Error && err.message.includes('rate')
@@ -156,6 +188,21 @@ function Home() {
     setPhase('idle')
     setFeedbackData(null)
     setIsAnalyzing(false)
+    setComparisonData(null)
+  }
+
+  function handleRetake(){
+    //save previous session data before resetting
+    if(feedbackData){
+      setPreviousScore(feedbackData.overallScore)
+      setPreviousTranscript(feedbackData.transcript)
+    }
+    setIsRetake(true)
+    setPhase('idle')
+    setFeedbackData(null)
+    setIsAnalyzing(false)
+    setComparisonData(null)
+    //topic is the same dont reset the topic
   }
 
   async function saveSession(feedbackData: FeedbackData, topic: string) {
@@ -278,7 +325,13 @@ return (
           <p className="font-mono text-[10px] tracking-[0.16em] uppercase text-white/30">
             Analysis
           </p>
-          <FeedbackPanel data={feedbackData} isLoading={isAnalyzing} />
+          <FeedbackPanel
+            data={feedbackData}
+            isLoading={isAnalyzing}
+            onRetake={handleRetake}
+            previousScore={previousScore}
+            comparisonData={comparisonData}
+          />
         </div>
       )}
 

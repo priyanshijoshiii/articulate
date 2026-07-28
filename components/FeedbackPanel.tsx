@@ -25,6 +25,13 @@ export interface FeedbackData {
 interface FeedbackPanelProps {
   data: FeedbackData | null
   isLoading: boolean
+  onRetake?: () => void
+  previousScore?: number | null
+  comparisonData?: {
+    improvement: string
+    stillNeeds: string
+    verdict: string
+  } | null
 }
 
 // --- Helpers ---
@@ -119,8 +126,13 @@ function StatCell({
 }
 
 // --- Main component ---
-export default function FeedbackPanel({ data, isLoading }: FeedbackPanelProps) {
-
+export default function FeedbackPanel({ 
+  data, 
+  isLoading,
+  onRetake,
+  previousScore,
+  comparisonData,
+}: FeedbackPanelProps) {
   // Loading skeleton
   if (isLoading) {
     return (
@@ -270,6 +282,7 @@ export default function FeedbackPanel({ data, isLoading }: FeedbackPanelProps) {
         </div>
       )}
 
+
       {/* Transcript */}
       {data.transcript && (
         <div className="border border-white/8 bg-white/[0.02] p-5 space-y-3">
@@ -282,6 +295,49 @@ export default function FeedbackPanel({ data, isLoading }: FeedbackPanelProps) {
         </div>
       )}
 
+      {/* Comparison */}
+      {comparisonData && previousScore !== null && (
+        <div className="border border-gold/20 bg-gold/5 p-5 space-y-4">
+          <p className="font-mono text-[9px] uppercase tracking-widest text-white/25">
+            Your improvement
+          </p>
+          <div className="flex items-center gap-4">
+            <div className="text-center">
+              <p className="font-mono text-2xl text-white/30">{previousScore}</p>
+              <p className="font-mono text-[9px] text-white/20 uppercase tracking-wide">before</p>
+            </div>
+            <div className="flex-1 h-px bg-gold/20" />
+            <div className="text-center">
+              <p className={`font-mono text-2xl font-medium ${
+                data.overallScore > (previousScore ?? 0) ? 'text-green-400' :
+                data.overallScore < (previousScore ?? 0) ? 'text-red-400' : 'text-gold'
+              }`}>
+                {data.overallScore}
+              </p>
+              <p className="font-mono text-[9px] text-white/20 uppercase tracking-wide">after</p>
+            </div>
+          </div>
+          <p className="font-serif text-lg text-white/80 italic">{comparisonData.verdict}</p>
+          <div className="space-y-1">
+            <p className="font-mono text-[9px] uppercase tracking-widest text-white/25">What improved</p>
+            <p className="text-sm text-white/50 leading-relaxed">{comparisonData.improvement}</p>
+          </div>
+          <div className="space-y-1">
+            <p className="font-mono text-[9px] uppercase tracking-widest text-white/25">Still needs work</p>
+            <p className="text-sm text-white/50 leading-relaxed">{comparisonData.stillNeeds}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Retake button */}
+      {onRetake && !comparisonData && (
+        <button
+          onClick={onRetake}
+          className="w-full font-mono text-[11px] tracking-widest uppercase py-3.5 border border-gold/30 text-gold/70 hover:bg-gold/10 transition-all"
+        >
+          ↺ Retake on same topic
+        </button>
+      )}
     </div>
   )
 }
