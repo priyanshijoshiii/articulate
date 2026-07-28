@@ -116,6 +116,7 @@ export default function TopicCard({ onTopicChange, disabled = false }: TopicCard
   const [searchError, setSearchError] = useState('')
   const [difficulty, setDifficulty] = useState<'beginner' | 'intermediate' | 'advanced'>('intermediate')
   const [isAIGenerated, setIsAIGenerated] = useState(false)
+  const [lastSearchedSubject, setLastSearchedSubject] = useState<string>('')
 
   function generateTopic() {
     if (disabled) return
@@ -146,6 +147,7 @@ export default function TopicCard({ onTopicChange, disabled = false }: TopicCard
     if (!searchInput.trim() || isGenerating) return
     setSearchError('')
     setIsGenerating(true)
+    setLastSearchedSubject(searchInput.trim()) // save the subject
 
     try {
       const res = await fetch('/api/generate-topic', {
@@ -174,6 +176,44 @@ export default function TopicCard({ onTopicChange, disabled = false }: TopicCard
     }, 150)
 
     } catch (err) {
+      setSearchError('Could not generate topic. Try again.')
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
+  async function handleGenerateFromSubject(subject: string) {
+    setSearchError('')
+    setIsGenerating(true)
+
+    try {
+      const res = await fetch('/api/generate-topic', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input: subject, difficulty }),
+      })
+
+      if (!res.ok) {
+        const { message } = await res.json()
+        setSearchError(message || 'Could not generate topic. Try again.')
+        setIsGenerating(false)
+        return
+      }
+
+      const data = await res.json()
+      const generatedText: string = data.topic
+
+      setIsAnimating(true)
+      setTimeout(() => {
+        const generated: Topic = { text: generatedText, category: 'society' }
+        setCurrentTopic(generated)
+        setIsAIGenerated(true)
+        setTopicCount(prev => prev + 1)
+        setIsAnimating(false)
+        onTopicChange?.(generated)
+      }, 150)
+
+    } catch {
       setSearchError('Could not generate topic. Try again.')
     } finally {
       setIsGenerating(false)
@@ -263,8 +303,14 @@ export default function TopicCard({ onTopicChange, disabled = false }: TopicCard
       {/* Topic card */}
         <div
           onClick={() => {
-            if (isAIGenerated) return  // don't shuffle AI generated topics
-            generateTopic()
+            if (disabled) return
+            if (isAIGenerated && lastSearchedSubject) {
+              // regenerate on same subject
+              setSearchInput(lastSearchedSubject)
+              handleGenerateFromSubject(lastSearchedSubject)
+            } else if (!isAIGenerated) {
+              generateTopic()
+            }
           }}
           className={`relative border border-gold-border bg-gold-dim p-7 min-h-[100px] flex items-center transition-all ${
             disabled
@@ -296,8 +342,11 @@ export default function TopicCard({ onTopicChange, disabled = false }: TopicCard
         </p>
       </div>
 
-      <p className="font-mono text-[11px] text-white/40 tracking-wide">
-        ↑ click card to shuffle from library · type above to generate with AI
+      <p className="font-mono text-[10px] text-white/40 tracking-wide">
+        {isAIGenerated && lastSearchedSubject
+          ? `↑ click card to generate another topic on "${lastSearchedSubject}"`
+          : '↑ click card to shuffle from library · type above to generate with AI'
+        }
       </p>
 
     </div>

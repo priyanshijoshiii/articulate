@@ -156,30 +156,38 @@ export default function HistoryPage() {
           {sessions.map(s => (
             <div key={s._id} className="border border-white/8 bg-white/[0.02]">
 
-              {/* Session header — always visible */}
-              <div
-                className="p-4 cursor-pointer hover:bg-white/[0.03] transition-all"
-                onClick={() => setExpanded(expanded === s._id ? null : s._id)}
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-serif text-sm text-white/80 leading-snug truncate">
-                      {s.topic}
-                    </p>
-                    <p className="font-mono text-[10px] text-white/25 mt-1">
-                      {formatDate(s.createdAt)} · {formatDuration(s.speakingDuration)} spoken · {s.wpm} WPM
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3 flex-shrink-0">
-                    <span className={`font-mono text-lg font-medium ${scoreColor(s.overallScore)}`}>
-                      {s.overallScore}/10
-                    </span>
-                    <span className="font-mono text-[10px] text-white/20">
-                      {expanded === s._id ? '↑' : '↓'}
-                    </span>
-                  </div>
-                </div>
+          {/* Session header — always visible */}
+          <div
+            className="p-4 cursor-pointer hover:bg-white/[0.03] transition-all"
+            onClick={() => setExpanded(expanded === s._id ? null : s._id)}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1 min-w-0">
+                <p className="font-serif text-sm text-white/80 leading-snug truncate">
+                  {s.topic}
+                </p>
+                <p className="font-mono text-[10px] text-white/25 mt-1">
+                  {formatDate(s.createdAt)} · {formatDuration(s.speakingDuration)} spoken · {s.wpm} WPM
+                </p>
               </div>
+              <div className="flex items-center gap-3 flex-shrink-0">
+                <span className={`font-mono text-lg font-medium ${scoreColor(s.overallScore)}`}>
+                  {s.overallScore}/10
+                </span>
+                {/* Retake button */}
+                <Link
+                  href={`/train?topic=${encodeURIComponent(s.topic)}`}
+                  onClick={e => e.stopPropagation()}
+                  className="font-mono text-[9px] tracking-widest uppercase text-white/20 hover:text-gold/60 transition-colors border border-white/10 hover:border-gold/30 px-2 py-1"
+                >
+                  Retake
+                </Link>
+                <span className="font-mono text-[10px] text-white/20">
+                  {expanded === s._id ? '↑' : '↓'}
+                </span>
+              </div>
+            </div>
+          </div>
 
               {/* Expanded details */}
               {expanded === s._id && (
