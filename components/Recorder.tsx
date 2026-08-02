@@ -211,9 +211,12 @@ export default function Recorder({ phase, onRecordingComplete }: RecorderProps) 
 
       {/* Idle state — only show when waiting */}
       {recordingState === 'idle' && !permissionDenied && (
-        <div className="border border-white/5 px-4 py-3">
-          <p className="font-mono text-[10px] text-white/20 tracking-wide">
+        <div className="border border-white/8 bg-white/[0.02] px-4 py-4 space-y-2">
+          <p className="font-mono text-[10px] text-white/40 tracking-wide">
             Recording will start automatically when session begins
+          </p>
+          <p className="font-mono text-[10px] text-white/20 tracking-wide leading-relaxed">
+            ⚠ For best results — use a quiet environment, speak close to your microphone, and avoid background noise
           </p>
         </div>
       )}
