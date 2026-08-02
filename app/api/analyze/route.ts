@@ -50,29 +50,32 @@ export async function POST(request: NextRequest) {
       messages: [
       {
         role: 'system',
-        content: `You are an expert speech coach and subject matter expert. You analyze impromptu speaking sessions and give brutally honest, highly personalized feedback.
-    
-    You will receive a transcript, the topic the speaker was given, and session stats. Return ONLY a valid JSON object — no explanation, no markdown, no backticks.
-    
+        content: `You are an expert speech coach analyzing an impromptu speaking session.
+    You will receive a transcript and return ONLY a valid JSON object — no explanation, no markdown, no backticks.
+
     Return exactly this shape:
     {
       "overallScore": <number 1-10>,
       "clarity": <number 1-10>,
       "coherence": <number 1-10>,
-      "grammarIssues": <number>,
-      "topicClarity": <string — 2-3 sentences: did they actually address the topic? what was their core argument?>,
-      "knowledgeGaps": [<string>, <string>, <string>],
-      "articulationReport": <string — 3-4 sentences: specific observations about HOW they spoke, not what they said. mention actual phrases they used, sentence patterns, vocabulary choices>,
+      "grammarIssues": <number, count of grammar mistakes>,
       "suggestions": [<string>, <string>, <string>],
-      "grammarCorrections": [<string>]
+      "grammarCorrections": [
+        {
+          "original": <string — the exact phrase from transcript that has an error>,
+          "issue": <string — what is wrong in one short sentence>,
+          "corrected": <string — the corrected version of the phrase>
+        }
+      ],
+      "topicClarity": <string — 2-3 sentences: did they actually address the topic?>,
+      "knowledgeGaps": [<string>, <string>, <string>],
+      "articulationReport": <string — 3-4 sentences about HOW they spoke>
     }
-    
+
     Rules:
-    - topicClarity: be specific about what argument or point they made. quote their actual words if relevant.
-    - knowledgeGaps: list 3 specific facts, angles, or perspectives they missed that would have strengthened their answer on THIS topic
-    - articulationReport: reference actual phrases from their transcript. mention if they repeated words, used passive voice, had strong openings, weak conclusions etc.
-    - suggestions: make each one a concrete action tied to something specific they said or missed — not generic advice
-    - overallScore: be honest. a 7 means genuinely good. most first attempts are 4-6.`,
+    - grammarCorrections: only include real grammar errors, not style choices. Max 5 corrections.
+    - If no grammar errors found, return empty array for grammarCorrections.
+    - overallScore: be honest. Most first attempts are 4-6.`,
       },
       {
         role: 'user',
@@ -139,6 +142,11 @@ export async function POST(request: NextRequest) {
       topicClarity: (aiData.topicClarity as string) || null,
       knowledgeGaps: (aiData.knowledgeGaps as string[])?.length ? aiData.knowledgeGaps : null,
       articulationReport: (aiData.articulationReport as string) || null,
+      grammarCorrections: (aiData.grammarCorrections as {
+        original: string
+        issue: string
+        corrected: string
+      }[]) ?? [],
     }
 
     return NextResponse.json(feedbackData)
