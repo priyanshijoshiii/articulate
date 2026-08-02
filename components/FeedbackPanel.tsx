@@ -19,6 +19,11 @@ export interface FeedbackData {
   topicClarity?: string
   knowledgeGaps?: string[]
   articulationReport?: string
+  grammarCorrections?: {
+    original: string
+    issue: string
+    corrected: string
+  }[]
 
 }
 
@@ -213,7 +218,7 @@ export default function FeedbackPanel({
         />
         <StatCell
           label="Grammar issues"
-          value={data.grammarIssues.toString()}
+          value={data.grammarIssues === 0 ? 'Clean' : data.grammarIssues.toString()}
           status={data.grammarIssues === 0 ? 'good' : data.grammarIssues < 4 ? 'warn' : 'bad'}
         />
       </div>
@@ -264,6 +269,41 @@ export default function FeedbackPanel({
           <p className="text-sm text-white/60 leading-relaxed">
             {data.articulationReport}
           </p>
+        </div>
+      )}
+
+      {/* Grammar corrections — visual, actionable */}
+      {data.grammarCorrections && data.grammarCorrections.length > 0 && (
+        <div className="border border-white/8 bg-white/[0.02] p-5 space-y-4">
+          <p className="font-mono text-[9px] tracking-widest uppercase text-white/25">
+            Grammar Corrections
+          </p>
+          {data.grammarCorrections.map((correction, i) => (
+            <div key={i} className="space-y-2 pb-4 border-b border-white/5 last:border-0 last:pb-0">
+              {/* Original with strikethrough */}
+              <div className="flex gap-2 items-start">
+                <span className="font-mono text-[9px] text-red-400/60 uppercase tracking-wide mt-0.5 flex-shrink-0">
+                  ✕
+                </span>
+                <p className="text-sm text-red-400/70 line-through leading-relaxed">
+                  {correction.original}
+                </p>
+              </div>
+              {/* Issue explanation */}
+              <p className="font-mono text-[10px] text-white/30 tracking-wide pl-4">
+                {correction.issue}
+              </p>
+              {/* Corrected version */}
+              <div className="flex gap-2 items-start">
+                <span className="font-mono text-[9px] text-green-400/60 uppercase tracking-wide mt-0.5 flex-shrink-0">
+                  ✓
+                </span>
+                <p className="text-sm text-green-400/70 leading-relaxed">
+                  {correction.corrected}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
