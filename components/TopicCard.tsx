@@ -12,6 +12,7 @@ interface Topic {
 interface TopicCardProps {
   onTopicChange?: (topic: Topic) => void
   disabled?: boolean
+  initialTopic?:string
 }
 
 const topics: Record<Exclude<Category, 'all'>, string[]> = {
@@ -106,17 +107,20 @@ const categories: Exclude<Category, 'all'>[] = [
   'philosophy', 'economics', 'science', 'leadership', 'india'
 ]
 
-export default function TopicCard({ onTopicChange, disabled = false }: TopicCardProps) {
+export default function TopicCard({ onTopicChange, disabled = false, initialTopic }: TopicCardProps) {
   const [activeCategory, setActiveCategory] = useState<Category>('all')
-  const [currentTopic, setCurrentTopic] = useState<Topic | null>(null)
+  const [currentTopic, setCurrentTopic] = useState<Topic | null>(
+    initialTopic ? { text: initialTopic, category: 'society' } : null
+  )
+  const [isAIGenerated, setIsAIGenerated] = useState(!!initialTopic)
+  const [lastSearchedSubject, setLastSearchedSubject] = useState<string>('')
   const [topicCount, setTopicCount] = useState(0)
   const [isAnimating, setIsAnimating] = useState(false)
   const [searchInput, setSearchInput] = useState('')
   const [isGenerating, setIsGenerating] = useState(false)
   const [searchError, setSearchError] = useState('')
   const [difficulty, setDifficulty] = useState<'beginner' | 'intermediate' | 'advanced'>('intermediate')
-  const [isAIGenerated, setIsAIGenerated] = useState(false)
-  const [lastSearchedSubject, setLastSearchedSubject] = useState<string>('')
+  
 
   function generateTopic() {
     if (disabled) return

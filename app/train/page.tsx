@@ -271,6 +271,7 @@ return (
         <TopicCard
           onTopicChange={(t) => setCurrentTopic(t.text)}
           disabled={phase !== 'idle'}
+          initialTopic={currentTopic || undefined}
         />
       </div>
 
@@ -323,7 +324,7 @@ return (
       {(isAnalyzing || feedbackData) && (
         <div className="space-y-4">
           <p className="font-mono text-[10px] tracking-[0.16em] uppercase text-white/30">
-            Analysis
+           Analysis
           </p>
           <FeedbackPanel
             data={feedbackData}
